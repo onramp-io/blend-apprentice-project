@@ -48,7 +48,7 @@ describe("Test Stripe class methods", function () {
 
   test("Create a Stripe customer successfully", async function () {
     const newCustomer = await Checkout.stripeCreateCustomer(mockUserId, mockEmail);
-    expect(newCustomer.id).toContain("cus");
+    
     expect(newCustomer.email).toBe(mockEmail);
     expect(newCustomer.description).toBe(mockUserId.toString());
 
@@ -58,12 +58,14 @@ describe("Test Stripe class methods", function () {
   test("Create a Stripe subscription successfully for a customer, returns subscription", async function () {
     const subscription = await Checkout.stripeCreateSubscription(testCustomer.id);
 
-    expect(subscription.id).toContain("sub");
     expect(subscription.customer).toBe(testCustomer.id);
   });
 
   test("Cancel a Stripe subscription successfully for a user, returns subscription", async function () {
+    expect(testSubscription.cancel_at).toBeFalsy();
+    
     const cancelledSub = await Checkout.stripeSubscriptionCancel(testSubscription.id);
+
     expect(cancelledSub.id).toBe(testSubscription.id);
     expect(cancelledSub.canceled_at).toBeTruthy();
   });
