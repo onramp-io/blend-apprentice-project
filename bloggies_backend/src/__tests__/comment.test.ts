@@ -1,12 +1,9 @@
 import db from "../db";
 import Comment from "../models/comment";
+import * as m from "./mocks";
 
 let validUserId: number;
 let validPostId: number;
-const validUserDisplayName = 'postsuser';
-const validUserEmail = "posts@test.com";
-const validPostDescription = 'Made with Strawberry, Basil, Sparkling Water';
-const validPostTitle = 'Strawberry Basil Soda';
 
 /** Tests for Comment model */
 describe("Test comment class", function () {
@@ -23,25 +20,26 @@ describe("Test comment class", function () {
       `INSERT INTO user_auth (email, hashed_pwd)
         VALUES ($1, $2)
         RETURNING id`,
-      [validUserEmail, "password"]);
+      [m.TEST_EMAIL, "password"]);
     validUserId = userAuthRes.rows[0].id;
 
     await db.query(
       `INSERT INTO users (user_id, display_name)
         VALUES ($1, $2)`,
-      [validUserId, validUserDisplayName]);
+      [validUserId, m.TEST_DISPLAY_NAME]);
 
     const postRes = await db.query(
       `INSERT INTO posts(title, description, body, author_id, is_premium) 
         VALUES
             ($1, $2, 'Body text description goes here', $3, false)
         RETURNING id`,
-        [validPostTitle, validPostDescription, validUserId]);
+      [m.TEST_POST_TITLE, m.TEST_POST_DESC, validUserId]);
     validPostId = postRes.rows[0].id;
 
     await db.query(
       `INSERT INTO comments (body, post_id, author_id, is_reply) 
-        VALUES ('This is a really great post about strawberry soda', ${validPostId}, ${validUserId}, false)`);
+        VALUES ($1, ${validPostId}, ${validUserId}, false)`,
+      [m.TEST_COMMENT_BODY]);
   });
 
   test("can create a new comment", async function () {
@@ -58,18 +56,18 @@ describe("Test comment class", function () {
   test("can get comments by post id", async function () {
     const res = await Comment.getCommentsByPostId(validPostId);
     expect(res.comments.length).toEqual(1);
-    expect(res.comments[0].body).toEqual("This is a really great post about strawberry soda");
+    expect(res.comments[0].body).toEqual(m.TEST_COMMENT_BODY);
   });
 
   test("can handle invalid post_id when creating new comment", async function () {
     try {
-      await Comment.createComment("Test unhappy comment post", 100, validUserId, false);
+      await Comment.createComment("Test unhappy comment post", 9999, validUserId, false);
     } catch (err) {
       expect(err.message).toBe("Invalid author_id/post_id");
       expect(err.status).toBe(400);
     }
   });
-  
+
   afterAll(async () => {
     await db.query("DELETE FROM posts");
     await db.query("DELETE FROM users");
