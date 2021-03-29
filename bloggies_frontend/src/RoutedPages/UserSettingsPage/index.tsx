@@ -1,9 +1,10 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import styled from "styled-components";
 import moment from "moment";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { CustomReduxState } from "../../custom";
 import CancelModal from "../../CancelModal";
+import { getUserInfoFromAPI } from "../../redux/actionCreators";
 
 const ContentContainers = styled.div`
   grid-column: 1 / 2;
@@ -14,8 +15,7 @@ const VariableContainers = styled.div`
   grid-column: 2 / 3;
   margin-top: 80px;
 `;
-const Headers = styled.h2`
-`;
+const Headers = styled.h2``;
 
 const UserSettingsPageContainer = styled.div`
   display: grid;
@@ -30,7 +30,7 @@ const CancelButton = styled.button`
 
 const SettingsHeader = styled.h1`
   grid-column: 1 / 3;
-`
+`;
 
 /**
  * UserSettingsPage renders the settings page for
@@ -38,13 +38,15 @@ const SettingsHeader = styled.h1`
  */
 
 function UserSettingsPage() {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getUserInfoFromAPI())
+  }, [])
   let userInfo = useSelector((st: CustomReduxState) => st.user);
-  console.log(userInfo)
+  console.log(userInfo);
   return (
     <UserSettingsPageContainer className="UserSettingsPage">
-      <SettingsHeader>
-        {`${userInfo.display_name}'s Settings` }
-      </SettingsHeader>
+      <SettingsHeader>{`${userInfo.display_name}'s Settings`}</SettingsHeader>
       <ContentContainers>
         <Headers>My subscription will end on date:</Headers>
       </ContentContainers>
