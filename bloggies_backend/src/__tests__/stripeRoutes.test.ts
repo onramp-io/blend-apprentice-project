@@ -28,14 +28,12 @@ describe("Test Stripe routes", function () {
 
   beforeEach(async function () {
     jest.setTimeout(1000 * 60 * 10);
-    await db.query("DELETE FROM user_auth");
-    await db.query("DELETE FROM users");
+
+    await reset();
     
     const userData = await makeNewUser(m.TEST_EMAIL, 'password', 'testStripe');
-
     testToken = userData.token;
     testUserId = userData.user.id;
-   
     await db.query(`UPDATE users SET membership_status = $1 WHERE user_id = $2`, [ACCEPTED, testUserId]);
 
     testCustomerNoPaymentMethod = await stripe.customers.create({
@@ -172,4 +170,13 @@ describe("Test Stripe routes", function () {
     expect(resp.status).toBe(200);
     expect(resp.body.status).toBe("open");
   });
+
+  afterAll(async () => {
+    await reset();
+  })
 });
+
+async function reset() { 
+  await db.query("DELETE FROM user_auth");
+  await db.query("DELETE FROM users");
+};
