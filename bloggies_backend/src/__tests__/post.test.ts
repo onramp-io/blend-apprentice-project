@@ -1,12 +1,9 @@
 import db from "../db";
 import Post from "../models/post";
+import * as m from "./mocks";
 
 let validPostId: number;
 let validUserId: number;
-const validUserDisplayName = 'postsuser';
-const validUserEmail = "posts@test.com";
-const validPostDescription = 'Made with Strawberry, Basil, Sparkling Water';
-const validPostTitle = 'Strawberry Basil Soda';
 
 /** Tests for Post model */
 describe("Test post class", function () {
@@ -22,20 +19,20 @@ describe("Test post class", function () {
       `INSERT INTO user_auth (email, hashed_pwd)
         VALUES ($1, $2)
         RETURNING id`,
-      [validUserEmail, "password"]);
+      [m.TEST_EMAIL, "password"]);
     validUserId = userAuthRes.rows[0].id;
 
     await db.query(
       `INSERT INTO users (user_id, display_name)
         VALUES ($1, $2)`,
-      [validUserId, validUserDisplayName]);
+      [validUserId, m.TEST_DISPLAY_NAME]);
 
     const postRes = await db.query(
       `INSERT INTO posts(title, description, body, author_id, is_premium) 
         VALUES
             ($1, $2, 'Body text description goes here', $3, false)
         RETURNING id`,
-        [validPostTitle, validPostDescription, validUserId]);
+        [m.TEST_POST_TITLE, m.TEST_POST_DESC, validUserId]);
     validPostId = postRes.rows[0].id;
   });
 
@@ -48,8 +45,8 @@ describe("Test post class", function () {
 
   test("can get post by post id", async function () {
     const post = await Post.getPost(validPostId, 'active');
-    expect(post.title).toBe(validPostTitle);
-    expect(post.description).toBe(validPostDescription);
+    expect(post.title).toBe(m.TEST_POST_TITLE);
+    expect(post.description).toBe(m.TEST_POST_DESC);
     expect(post.author_id).toBe(validUserId);
   });
 
