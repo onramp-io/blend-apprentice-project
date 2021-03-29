@@ -1,6 +1,4 @@
-import React, {useState} from "react";
-import { useSelector } from "react-redux";
-import { CustomReduxState } from "../../custom";
+import React from "react";
 import UserApplicationForm from "../../Forms/UserApplicationForm";
 import './UserApplicationPage.css'
 
@@ -10,9 +8,6 @@ import './UserApplicationPage.css'
   * Routes to '/register/membership-application'
 */
 function UserApplicationPage() {
-  const checkStatus = useSelector(
-    (st: CustomReduxState) => st.user.membership_status
-  );
 
   return (
     <div className="UserApplicationPage mt-5">

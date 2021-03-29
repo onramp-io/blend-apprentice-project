@@ -270,6 +270,7 @@ export function gotMembershipStatus(membStatus: string) {
  * and dispatches action to update redux store.
  */
 export function cancelPremiumUserMembership(subscriptionId: string) {
+  console.log(subscriptionId);
   return async function (dispatch: Dispatch<Action>) {
     const res = await fetch(`${BASE_URL}/checkout/cancel-subscription`, {
       method: 'DELETE',
@@ -278,7 +279,6 @@ export function cancelPremiumUserMembership(subscriptionId: string) {
         "Content-type": "application/json"
       }
     });
-    const resData = await res.json();
     // resData.current_period_end
     if (res.status === 200) {
       const updatedMembershipData = {

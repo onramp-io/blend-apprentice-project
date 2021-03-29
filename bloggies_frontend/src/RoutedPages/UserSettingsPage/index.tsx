@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,10 +22,6 @@ const UserSettingsPageContainer = styled.div`
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(3, 1fr);
   margin-top: 100px;
-`;
-
-const CancelButton = styled.button`
-  margin-top: 0px;
 `;
 
 const SettingsHeader = styled.h1`

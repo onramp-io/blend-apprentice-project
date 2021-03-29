@@ -36,8 +36,9 @@ function Login() {
 
     // set the user's token into the localStorage. (Deprecated: No longer store token in localStorage)
     // localStorage.setItem("token", loginRes.token);
+    console.log(res.status);
     if (res.status === 200) {
-      let cancelAt = new Date(loginRes.user.cancel_at);
+      let cancelAt = loginRes.user.cancel_at ? new Date(loginRes.user.cancel_at) : null;
       if (cancelAt && cancelAt <= new Date()) {
         dispatch(cancelPremiumUserMembership(loginRes.user.subscription_id))
       }
