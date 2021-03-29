@@ -173,6 +173,7 @@ describe("Test Stripe routes", function () {
 
   afterAll(async () => {
     await reset();
+    await db.end();
   })
 });
 

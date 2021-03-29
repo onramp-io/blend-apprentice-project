@@ -77,10 +77,14 @@ describe("Test Bookmarks routes", function () {
   });
 
   afterAll(async () => {
-    await db.query("DELETE FROM bookmarks");
-    await db.query("DELETE FROM posts");
-    await db.query("DELETE FROM users");
-    await db.query("DELETE FROM user_auth");
+    await resetAll();
     await db.end();
   });
 });
+
+async function resetAll() {
+  await db.query("DELETE FROM bookmarks");
+  await db.query("DELETE FROM posts");
+  await db.query("DELETE FROM users");
+  await db.query("DELETE FROM user_auth");
+}

@@ -9,11 +9,7 @@ let validUserId: number;
 describe("Test post class", function () {
   beforeEach(async function () {
     // create a user
-    await db.query("DELETE FROM posts");
-    await db.query("DELETE FROM users");
-    await db.query("DELETE FROM user_auth");
-    await db.query("ALTER SEQUENCE posts_id_seq RESTART WITH 1");
-    await db.query("ALTER SEQUENCE user_auth_id_seq RESTART WITH 1");
+    await reset();
 
     const userAuthRes = await db.query(
       `INSERT INTO user_auth (email, hashed_pwd)
@@ -86,11 +82,15 @@ describe("Test post class", function () {
   });
 
   afterAll(async () => {
-    await db.query("DELETE FROM posts");
-    await db.query("DELETE FROM users");
-    await db.query("DELETE FROM user_auth");
-    await db.query("ALTER SEQUENCE posts_id_seq RESTART WITH 1");
-    await db.query("ALTER SEQUENCE user_auth_id_seq RESTART WITH 1");
+    await reset();
     await db.end();
   });
 });
+
+async function reset() {
+  await db.query("DELETE FROM posts");
+  await db.query("DELETE FROM users");
+  await db.query("DELETE FROM user_auth");
+  await db.query("ALTER SEQUENCE posts_id_seq RESTART WITH 1");
+  await db.query("ALTER SEQUENCE user_auth_id_seq RESTART WITH 1");
+}

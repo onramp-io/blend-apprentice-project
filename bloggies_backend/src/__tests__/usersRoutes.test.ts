@@ -91,7 +91,7 @@ describe("Test User routes", function () {
   });
 
   /** POST /users/login  => status 400, { error } */
-  test("POST /user-auth/login - handle login a non-existant", async function () {
+  test("INVALID POST /user-auth/login - handle login a non-existant", async function () {
     const resp = await request(app)
       .post(`/user-auth/login`)
       .send({
@@ -103,7 +103,7 @@ describe("Test User routes", function () {
   });
 
   /** POST /users/login  => status 400, { error } */
-  test("POST /user-auth/login - handle login a bad password", async function () {
+  test("INVALID POST /user-auth/login - handle login a bad password", async function () {
     const resp = await request(app)
       .post(`/user-auth/login`)
       .send({
