@@ -1,56 +1,23 @@
 import Stripe from "stripe";
-import { PRICE_ID } from "../config";
 import Checkout from "../models/stripe";
 import { stripe } from "../routes/stripe";
+import { makeNewAttachedPaymentMethodAndCustomer, makeNewSubscriptionForCustomer } from "./makeFunctions";
+import { INVALID_SUB_ID, INVALID_CUSTOMER_ID, TEST_EMAIL, MOCK_USER_ID, VALID_CARD } from "./mocks";
 
-
-const mockEmail = "test@test.com";
-const mockUserId = 1;
-const mockCard = {
-  number: '4242424242424242',
-  exp_month: 3,
-  exp_year: 2022,
-  cvc: '314',
-}
-const invalidCustomerId = "cus_123";
-const invalidSubscriptionId = "sub_123";
 let testCustomer: Stripe.Customer;
 let testSubscription: Stripe.Subscription;
 
 describe("Test Stripe class methods", function () {
   beforeAll(async function () {
-    testCustomer = await stripe.customers.create({
-      email: mockEmail
-    });
-
-    const paymentMethod = await stripe.paymentMethods.create({ type: "card", card: mockCard });
-    try {
-      await stripe.paymentMethods.attach(paymentMethod.id, {
-        customer: testCustomer.id
-      });
-    } catch (err) {
-      fail("Stripe's PaymentMethod attach to Customer failed");
-    }
-
-    await stripe.customers.update(testCustomer.id, {
-      invoice_settings: {
-        default_payment_method: paymentMethod.id
-      }
-    });
-
-    testSubscription = await stripe.subscriptions.create({
-      customer: testCustomer.id, 
-      items: [{
-        plan: PRICE_ID
-      }]
-    });
+    testCustomer = await makeNewAttachedPaymentMethodAndCustomer(VALID_CARD, TEST_EMAIL);
+    testSubscription = await makeNewSubscriptionForCustomer(testCustomer.id);
   });
 
   test("Create a Stripe customer successfully", async function () {
-    const newCustomer = await Checkout.stripeCreateCustomer(mockUserId, mockEmail);
+    const newCustomer = await Checkout.stripeCreateCustomer(MOCK_USER_ID, TEST_EMAIL);
     
-    expect(newCustomer.email).toBe(mockEmail);
-    expect(newCustomer.description).toBe(mockUserId.toString());
+    expect(newCustomer.email).toBe(TEST_EMAIL);
+    expect(newCustomer.description).toBe(MOCK_USER_ID.toString());
 
     await stripe.customers.del(newCustomer.id);
   });
@@ -63,7 +30,7 @@ describe("Test Stripe class methods", function () {
 
   test("Cancel a Stripe subscription successfully for a user, returns subscription", async function () {
     expect(testSubscription.cancel_at).toBeFalsy();
-    
+
     const cancelledSub = await Checkout.stripeSubscriptionCancel(testSubscription.id);
 
     expect(cancelledSub.id).toBe(testSubscription.id);
@@ -72,27 +39,27 @@ describe("Test Stripe class methods", function () {
 
   test("Handles invalid subscription id to cancel a subscription", async function () {
     try { 
-     await Checkout.stripeSubscriptionCancel(invalidSubscriptionId);
+     await Checkout.stripeSubscriptionCancel(INVALID_SUB_ID);
     } catch (err) {
-     expect(err.message).toBe(`No such subscription: ${invalidSubscriptionId}`);
+     expect(err.message).toBe(`No such subscription: ${INVALID_SUB_ID}`);
      expect(err.status).toBe(400);
     }
   });
 
   test("Handles invalid customer id to cancel a customer", async function () {
     try { 
-     await Checkout.stripeCreateSubscription(invalidCustomerId);
+     await Checkout.stripeCreateSubscription(INVALID_CUSTOMER_ID);
     } catch (err) {
-     expect(err.message).toBe(`Customer ${invalidCustomerId} does not exist`);
+     expect(err.message).toBe(`Customer ${INVALID_CUSTOMER_ID} does not exist`);
      expect(err.status).toBe(400);
     }
   });
 
   test("Handles invalid customer id when creating a subscription", async function () {
     try { 
-     await Checkout.stripeCreateSubscription(invalidCustomerId);
+     await Checkout.stripeCreateSubscription(INVALID_CUSTOMER_ID);
     } catch (err) {
-     expect(err.message).toBe(`Customer ${invalidCustomerId} does not exist`);
+     expect(err.message).toBe(`Customer ${INVALID_CUSTOMER_ID} does not exist`);
      expect(err.status).toBe(400);
     }
   });
