@@ -1,6 +1,6 @@
 import db from "../db";
 import Comment from "../models/comment";
-import * as m from "./mocks";
+import * as m from "./helpers/mocks";
 
 let validUserId: number;
 let validPostId: number;

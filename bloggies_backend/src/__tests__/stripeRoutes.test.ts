@@ -4,8 +4,8 @@ import app from "../app";
 import db from "../db";
 import { ACCEPTED, ACTIVE } from "../membershipStatuses";
 import { stripe } from "../routes/stripe";
-import { makeNewAttachedPaymentMethodAndCustomer, makeNewSubscriptionForCustomer, makeNewUser } from "./makeFunctions";
-import * as m from "./mocks";
+import { makeNewAttachedPaymentMethodAndCustomer, makeNewSubscriptionForCustomer, makeNewUser } from "./helpers/makeFunctions";
+import * as m from "./helpers/mocks";
 
 let testPaymentMethod: Stripe.PaymentMethod;
 let testSecondPaymentMethod: Stripe.PaymentMethod;
@@ -27,7 +27,7 @@ describe("Test Stripe routes", function () {
   });
 
   beforeEach(async function () {
-    jest.setTimeout(1000 * 60 * 10);
+    jest.setTimeout(3000 * 60 * 10);
 
     await reset();
     

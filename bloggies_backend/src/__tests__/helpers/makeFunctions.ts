@@ -1,10 +1,10 @@
 /** make functions */
 
 import Stripe from "stripe";
-import { PRICE_ID } from "../config";
-import User from "../models/user";
-import UserAuth from "../models/userAuth";
-import { stripe } from "../routes/stripe";
+import { PRICE_ID } from "../../config";
+import User from "../../models/user";
+import UserAuth from "../../models/userAuth";
+import { stripe } from "../../routes/stripe";
 
 export async function makeNewAttachedPaymentMethodAndCustomer(card: any, email: string): Promise<Stripe.Customer> {
   const failedPaymentMet = await stripe.paymentMethods.create({ type: "card", card: card });

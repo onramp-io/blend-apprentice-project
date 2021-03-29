@@ -3,8 +3,8 @@ import request from "supertest"
 import app from "../app";
 import db from "../db";
 import { NONE } from "../membershipStatuses";
-import * as m from "./mocks";
-import { makeNewUser } from "./makeFunctions";
+import * as m from "./helpers/mocks";
+import { makeNewUser } from "./helpers/makeFunctions";
 
 const TEST_PASSWORD = "password";
 
@@ -60,11 +60,25 @@ describe("Test User routes", function () {
       .send({
         email: m.TEST_EMAIL,
         password: "password",
-        display_name: m.TEST_DISPLAY_NAME
+        display_name: "notDuplicateDisplayName"
       });
 
     expect(resp.status).toBe(400);
     expect(resp.body.error.message).toBe("Email already exists");
+  });
+
+  /** POST /users/register => status 403, { error } */
+  test("INVALID POST /user-auth/register - handle duplicate display name register", async function () {
+    const resp = await request(app)
+      .post(`/user-auth/register`)
+      .send({
+        email: "notDuplicateEmail",
+        password: "password",
+        display_name: m.TEST_DISPLAY_NAME
+      });
+
+    expect(resp.status).toBe(403);
+    expect(resp.body.error.message).toBe("That Display Name is already taken. Please choose another one");
   });
 
   /** POST /users/login  => status 200, { user, token } */

@@ -1,8 +1,8 @@
 import request from "supertest";
 import app from "../app";
 import db from "../db";
-import { makeNewUser } from "./makeFunctions";
-import * as m from "./mocks";
+import { makeNewUser } from "./helpers/makeFunctions";
+import * as m from "./helpers/mocks";
 
 let token: string;
 let validUserId: number;

@@ -1,6 +1,6 @@
 import db from "../db";
 import Bookmark from "../models/bookmark";
-import * as m from "./mocks";
+import * as m from "./helpers/mocks";
 
 let validPostId: number;
 let validUserId: number;

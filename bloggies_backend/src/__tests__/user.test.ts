@@ -1,7 +1,7 @@
 import User from "../models/user";
 import db from "../db";
 import { NONE } from "../membershipStatuses";
-import * as m from "./mocks";
+import * as m from "./helpers/mocks";
 
 let validUserId: number;
 

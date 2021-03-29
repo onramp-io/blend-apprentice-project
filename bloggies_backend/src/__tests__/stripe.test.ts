@@ -1,8 +1,8 @@
 import Stripe from "stripe";
 import Checkout from "../models/stripe";
 import { stripe } from "../routes/stripe";
-import { makeNewAttachedPaymentMethodAndCustomer, makeNewSubscriptionForCustomer } from "./makeFunctions";
-import * as m from "./mocks";
+import { makeNewAttachedPaymentMethodAndCustomer, makeNewSubscriptionForCustomer } from "./helpers/makeFunctions";
+import * as m from "./helpers/mocks";
 
 let testCustomer: Stripe.Customer;
 let testSubscription: Stripe.Subscription;
