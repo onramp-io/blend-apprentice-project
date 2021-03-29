@@ -16,6 +16,8 @@ let testCustomerNoPaymentMethod: Stripe.Customer;
 let testCustomerWithSub: Stripe.Customer;
 let testSubscription: Stripe.Subscription;
 
+jest.setTimeout(10000);
+
 describe("Test Stripe routes", function () {
   beforeAll(async function () {
     testPaymentMethod = await stripe.paymentMethods.create({ type: "card", card: m.VALID_CARD });
@@ -27,7 +29,6 @@ describe("Test Stripe routes", function () {
   });
 
   beforeEach(async function () {
-    jest.setTimeout(3000 * 60 * 10);
 
     await reset();
     
