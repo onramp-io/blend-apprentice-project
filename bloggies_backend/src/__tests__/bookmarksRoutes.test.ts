@@ -1,8 +1,8 @@
 import request from "supertest";
 import app from "../app";
 import db from "../db";
-import User from "../models/user";
-import UserAuth from "../models/userAuth";
+import { makeNewUser } from "./makeFunctions";
+import * as m from "./mocks";
 
 let token: string;
 let validUserId: number;
@@ -12,8 +12,8 @@ let validNotFavPostId: number;
 describe("Test Bookmarks routes", function () {
   beforeAll(async function () {
     await db.query("DELETE FROM users");
-    const userAuthData = await UserAuth.register('GrahaTia', 'password');
-    await User.createUser(userAuthData.user.id, 'CrystalExarch');
+
+    const userAuthData = await makeNewUser(m.TEST_EMAIL, "password", m.TEST_DISPLAY_NAME)
     token = userAuthData.token;
     validUserId = userAuthData.user.id;
   })
@@ -21,6 +21,7 @@ describe("Test Bookmarks routes", function () {
   beforeEach(async function () {
     await db.query("DELETE FROM posts");
     await db.query("DELETE FROM bookmarks");
+    
     const postData = await db.query(`INSERT INTO posts(title, description, body, author_id) 
                             VALUES
                                 ('Strawberry Basil Soda', 
