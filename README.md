@@ -48,7 +48,7 @@ As a **subscribed** user, in addition to the free user functions, they can...
  |react-stripe-elements  |^6.1.2 |
 
 # Installation
-To run this project, you must have Docker installed and download/clone this repository to get the `bloggies_backend` and `bloggies_frontend` files.
+To run this project, you must have Docker installed and download/clone this repository to get the `bloggies_backend` and `bloggies_frontend` files. The Stripe CLI is also recommended to allow for subscription/payments. Learning Circle utilizes the Stripe webhook events to update memberships in the database.  
 
 To setup the **backend** run the following commands in the command line (from the root directory):
 	
@@ -65,6 +65,9 @@ To setup the **frontend** run the following commands in the command line (from t
 	$ yarn add yarn.lock
 	$ npm start  		**code will be on localhost:3000**
 **To run frontend tests, run `$ npm test` in `bloggies_frontend/`**
+
+(Stripe CLI required) To setup Stripe webhooks locally: 
+	$ stripe listen --forward-to localhost:5000/checkout/webhook
 
 #  Architecture Pattern
 
