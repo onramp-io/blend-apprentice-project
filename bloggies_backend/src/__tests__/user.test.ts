@@ -34,7 +34,8 @@ describe("Test User class", function () {
       membership_end_date: null,
       last_submission_date: null,
       customer_id: null,
-      subscription_id: null
+      subscription_id: null,
+      cancel_at: null,
     });
   });
 

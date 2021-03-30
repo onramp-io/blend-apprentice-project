@@ -6,7 +6,7 @@ import { BCRYPT_WORK_FACTOR } from '../config';
 /** Tests for UserAuth model */
 describe("Test UserAuth class", function () {
   beforeAll(async function () {
-    await db.query("DELETE FROM users");
+    await reset();
 
     const password = 'password';
     const hashedPwd = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
@@ -57,9 +57,13 @@ describe("Test UserAuth class", function () {
   });
 
   afterAll(async () => {
-    await db.query("DELETE FROM users");
-    await db.query("DELETE FROM user_auth");
-    await db.query("ALTER SEQUENCE user_auth_id_seq RESTART WITH 1");
+    await reset();
     await db.end();
   });
 });
+
+async function reset() {
+  await db.query("DELETE FROM users");
+  await db.query("DELETE FROM user_auth");
+  await db.query("ALTER SEQUENCE user_auth_id_seq RESTART WITH 1");
+}
