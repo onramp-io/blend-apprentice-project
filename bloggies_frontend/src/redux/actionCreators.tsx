@@ -21,15 +21,10 @@ export function addPostToAPI(postData: PostFormData) {
     const resData = await res.json();
     if (res.status === 201) {
       dispatch(deleteServerErr());
-      dispatch(addPost(resData.post));
     } else {
       dispatch(gotServerErr(resData.error.message));
     }
   };
-}
-
-function addPost(post: Post) {
-  return { type: t.ADD_POST, payload: { post } };
 }
 
 /**

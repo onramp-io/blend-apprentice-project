@@ -59,14 +59,6 @@ function rootReducer(state = INITIAL_STATE, action: Action) {
         return f.id !== action.payload.postId;
       });
       return { ...state, posts: filteredPosts, favorites: newFavorites };
-    case t.ADD_POST:
-      const newPost = action.payload.post;
-      // add in the current user's information
-      newPost.author_name = state.user.display_name;
-      newPost.author_id = state.user.id;
-      newPost.bookmark_count = 0;
-
-      return { ...state, posts: [action.payload.post, ...state.posts] };
     case t.UPDATE_POST:
       const updatedPost = action.payload.post;
       const updatedPostList = state.posts.map((p: Post) => {
