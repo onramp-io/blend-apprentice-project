@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { CustomReduxState } from "../../custom";
 import styled from "styled-components";
@@ -74,13 +74,13 @@ const PaymentButton = styled(Button)`
 function RegisterStatusPage() {
   const history = useHistory();
   const dispatch = useDispatch()
+  const [text, setText] = useState('')
 
   // pulls membership status from redux store
   const checkStatus = useSelector(
     (st: CustomReduxState) => st.user.membership_status
   );
 
-  let text: string | null = null;
   // home buttone redirects user to newfeed page
   let homeButton = (
     <NewsFeedButton onClick={() => history.push("/")}>
@@ -94,7 +94,7 @@ function RegisterStatusPage() {
   let paymentButton = (
     <PaymentButton 
     onClick={() => { 
-      history.push("payment/form") 
+      history.push("/payment/form") 
       dispatch(createCustomer())
   }}
     >{`I'm Ready, Sign Me Up!`}</PaymentButton>
@@ -102,23 +102,19 @@ function RegisterStatusPage() {
 
   
   useEffect(() => {
+    console.log('worrking', checkStatus)
     switch (checkStatus) {
       case 'rejected':
-        text =
-        "We are sorry, we will not be able to grant you membership at this time. Please apply again at a later date, we would love for you to be a part of the the Learning Circle community!";
-        alert('Your application has been rejected')
+        setText("We are sorry, we will not be able to grant you membership at this time. Please apply again at a later date, we would love for you to be a part of the the Learning Circle community!");
         break;
       case 'pending':
-        text =
-        "We would love to have you as a member of the Learning Circle, but we are going to need a bit more information first! You have been sent a follow up email with an additional questionnaire, please fill out at your earliest convenience!";
-        alert('Your application is pending')
+        setText("We would love to have you as a member of the Learning Circle, but we are going to need a bit more information first! You have been sent a follow up email with an additional questionnaire, please fill out at your earliest convenience!");
         break;
       case 'accepted':
+        setText("Congratulations! You have been approved to become a premium member of the Learning Circle! Click below to register for your subscription, we are excited to welcome you into the community!");
         break;
       case 'inactive':
-        text =
-        "We are sorry to see you go! Since you have filled out this application prior, no need to refill it out should you again choose to be a premium user! We would love to have you back as a part of the Learning Circle, click below to re-activate your membership!";
-        alert('Your application is inactive')
+        setText("We are sorry to see you go! Since you have filled out this application prior, no need to refill it out should you again choose to be a premium user! We would love to have you back as a part of the Learning Circle, click below to re-activate your membership!");
         break;
       default:
         break;
