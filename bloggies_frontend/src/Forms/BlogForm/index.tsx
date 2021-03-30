@@ -14,17 +14,21 @@ interface IProp {
  * `BlogForm` renders a form for creating/editting a blog.
  * (IF EDITING: post and closeModal parameters required)
  */
-function BlogForm({addPost, post, closeModal }: IProp) {
+function BlogForm({ addPost, post, closeModal }: IProp) {
   const membershipStatus = useSelector(
     (st: CustomReduxState) => st.user.membership_status
   );
-  const INITIAL_FORM_VALUES = { title: post?.title || "", description: post?.description || "", body: post?.body || "", is_premium: membershipStatus === 'active'}
+  const INITIAL_FORM_VALUES = { title: post?.title || "", description: post?.description || "", body: post?.body || "", is_premium:  post?.is_premium || false };
   const [validated, setValidated] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_VALUES);
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = evt.target;
-    setFormData(currData => ({ ...currData, [name]: value }));
+    if (evt.target.name === "is_premium") {
+      setFormData(currData => ({ ...currData, [name]: evt.target.checked }));
+    } else {
+      setFormData(currData => ({ ...currData, [name]: value }));
+    }
   }
 
   const handleSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
@@ -56,6 +60,9 @@ function BlogForm({addPost, post, closeModal }: IProp) {
         </Form.Group>
         <Form.Group>
           <Form.Control as="textarea" name="body" value={formData.body} onChange={handleChange} placeholder="Body" />
+        </Form.Group>
+        <Form.Group>
+          <Form.Check type="checkbox" label="Make it premium" onChange={handleChange} name="is_premium" />
         </Form.Group>
         <Button type="submit">Publish post</Button>
       </Form>
