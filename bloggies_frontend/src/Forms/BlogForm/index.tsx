@@ -18,7 +18,7 @@ function BlogForm({ addPost, post, closeModal }: IProp) {
   const membershipStatus = useSelector(
     (st: CustomReduxState) => st.user.membership_status
   );
-  const INITIAL_FORM_VALUES = { title: post?.title || "", description: post?.description || "", body: post?.body || "", is_premium: false };
+  const INITIAL_FORM_VALUES = { title: post?.title || "", description: post?.description || "", body: post?.body || "", is_premium:  post?.is_premium || false };
   const [validated, setValidated] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_VALUES);
 
