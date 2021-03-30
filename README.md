@@ -67,6 +67,7 @@ To setup the **frontend** run the following commands in the command line (from t
 **To run frontend tests, run `$ npm test` in `bloggies_frontend/`**
 
 (Stripe CLI required) To setup Stripe webhooks locally: 
+
 	$ stripe listen --forward-to localhost:5000/checkout/webhook
 
 #  Architecture Pattern
@@ -179,7 +180,7 @@ Learning Circle's database is composed of six tables:
 
 |  | Endpoint | Body | Purpose |
 |--|--| --| --|
-| POST |/user-auth/register  | email: string, password: string, display_name: string|Registers a new user.
+| POST |/user-auth/register  | email: string, password: string, display_name: string|Registers a new user. |
 | POST |/user-auth/login | email: string, password: string|Authenticate credentials and logins a user.
 | GET | /users | |Login required. Retrieve the currently logged in user. 
 | GET |/users/search?term=[term] | | Retrieve all users matching search term.
