@@ -12,8 +12,7 @@ function rootReducer(state = INITIAL_STATE, action: Action) {
   switch (action.type) {
     case t.UPDATE_CUSTOMER_ID: 
       return {...state, user:{ ...state.user, customer_id: action.payload.customer.id}};
-    case t.UPDATE_SUBSCRIPTION_ID: 
-      console.log("UPDATE SUBSCRIPTION ID", action.payload);
+    case t.UPDATE_SUBSCRIPTION_ID:
       return {...state, user: { ...state.user, subscription_id: action.payload.subscription_id}};
     case t.UPDATE_MEMBERSHIP_STATUS:
       return { ...state, user: { ...state.user, membership_status: action.payload.membership_status } };
@@ -31,7 +30,6 @@ function rootReducer(state = INITIAL_STATE, action: Action) {
       const updateAddFavPosts = state.posts.map((p: Post) => {
         // Increment the favorite count of the post
         if (p.id === action.payload.post.id) {
-          // POST-SUBMISSION UPDATE: adding a "currentValue variable".
           let currentValue = parseInt(p.bookmark_count) || 0;
           const newFavCount = currentValue + 1;
           p.bookmark_count = newFavCount.toString();
