@@ -20,9 +20,7 @@ export default class UserAuth {
 			let token = jwt.sign({ email: user.email, user_id: user.id }, SECRET_KEY as string);
 			return { user: user, token };
 		} catch (err) {
-			// I changed "Email already exists" message to err.message because to get a more accurate error message getting different error as a result
-			throw new ExpressError(err.message, 400);
-
+			throw new ExpressError("Email already exists", 400);
 		}
 	}
 
