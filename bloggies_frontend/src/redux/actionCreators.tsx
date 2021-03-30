@@ -88,11 +88,12 @@ export function getPostsFromAPI() {
  */
 export function getUserInfoFromAPI() {
   return async function (dispatch: Dispatch<Action>) {
-    const res = await fetch(`${BASE_URL}/user`, {
+    const res = await fetch(`${BASE_URL}/users`, {
       method: "GET",
       credentials: "include",
     });
     const userRes = await res.json();
+
     dispatch(gotUserInfo(userRes.user));
   };
 }
