@@ -3,28 +3,28 @@ import Enzyme, { mount, ReactWrapper, shallow } from "enzyme";
 import Adapter from "@wojtekmaj/enzyme-adapter-react-17";
 import BlogCard from "./index";
 import ReactRouter from "react-router";
-import { MOCK_POST, MOCK_STORE } from "../jest.mock";
+import { MOCK_POST, MOCK_POSTS, MOCK_STORE } from "../jest.mock";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import configureStore from "redux-mock-store";
+import FavoritesList from "./index";
 
 Enzyme.configure({ adapter: new Adapter() });
 
 const mockStore = configureStore();
 
-describe("BlogCard", () => {
+describe("Favorites List", () => {
   let wrapper: ReactWrapper;
 
   beforeEach(() => {
     jest
       .spyOn(ReactRouter, "useParams")
       .mockReturnValue({ userId: "1", displayName: "test-user" });
-
     wrapper = mount(
       shallow<Component>(
         <Provider store={mockStore(MOCK_STORE)}>
           <BrowserRouter>
-            <BlogCard post={MOCK_POST} />
+            <FavoritesList favorites={MOCK_POSTS} />
           </BrowserRouter>
         </Provider>
       ).get(0)
@@ -35,17 +35,20 @@ describe("BlogCard", () => {
     expect(wrapper).toMatchSnapshot();
   });
 
-  it("should display correct post text", () => {
-    const bodyTextTag = wrapper.find(".BlogCard-body > p");
-    expect(bodyTextTag.text()).toBe(MOCK_POST.body);
-  });
+  it("should render the message 'Empty... for now!' if favorites is empty" , () => {
+    wrapper = mount(
+      shallow<Component>(
+        <Provider store={mockStore(MOCK_STORE)}>
+          <BrowserRouter>
+            <FavoritesList favorites={[]} />
+          </BrowserRouter>
+        </Provider>
+      ).get(0)
+    )
+    const nodesFound = wrapper.findWhere(node => {
+      return node.text() === 'Empty... for now!';
+    });
 
-  it("should display correct post title", () => {
-    const titleTextTag = wrapper.find(".BlogCard-title");
-    expect(titleTextTag.first().text()).toBe(MOCK_POST.title);
-  });
-  it("should display correct post subtitle", () => {
-    const descriptionTextTag = wrapper.find(".BlogCard-description");
-    expect(descriptionTextTag.first().text()).toBe(MOCK_POST.description);
-  });
+    expect(nodesFound).toHaveLength(4);
+  })
 });

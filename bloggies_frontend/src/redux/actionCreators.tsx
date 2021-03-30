@@ -93,7 +93,6 @@ export function getUserInfoFromAPI() {
       credentials: "include",
     });
     const userRes = await res.json();
-
     dispatch(gotUserInfo(userRes.user));
   };
 }

@@ -26,6 +26,7 @@ describe('EditModal', () => {
     ).get(0));
   });
 
+
   it('should match snapshot', () => {
     expect(wrapper).toMatchSnapshot();
   });

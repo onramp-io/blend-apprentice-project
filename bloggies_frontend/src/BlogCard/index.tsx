@@ -53,8 +53,8 @@ function BlogCard({ post }: IProp) {
     <Card className="BlogCard text-left">
       <Card.Body>
         <StyledBlogLink isPremium={post.is_premium} to={`/blogs/${post.id}/${postTitleForURL}`}>
-          <Card.Title>{post.title}</Card.Title>
-          <Card.Subtitle>{post.description}</Card.Subtitle>
+          <Card.Title className="BlogCard-title">{post.title}</Card.Title>
+          <Card.Subtitle className="BlogCard-description">{post.description}</Card.Subtitle>
           <Card.Text className="BlogCard-body">
             {post.body}
           </Card.Text>
