@@ -1,56 +1,46 @@
-﻿# Welcome to Bloggies!
-
-Bloggies is a blog post web application developed primarily in TypeScript; Express.js and React.js.
-
->This project is hosted live on https://bloggies.diana-liang.com/
->(with Netlify and Heroku)
-
+﻿# Welcome to Learning Circle!
+Learning Circle is a freemium blog post web application developed primarily in TypeScript; Express.js and React.js.
 # Functionalities
-As a users, they can 
--  read posts
-- search for blog posts and users based on the post **author name** and the **post's title and description**.
-- sort the Homepage's blog lists by **most recent (default)**, **most favorited**, and **least favorited**.
--  view user profiles
-- create an account
-- login an account
-- logout an account. 
-	
-As a **registered** user, they can
-- create a post
-- edit/delete their posts
+As a **free** user, they can...
+
+- apply for premium membership eligibility
+		- if accepted, option to pay for premium subscription
+- read free posts
+- search for blog posts and users based on the post **author name** and the **post's title and description**
+- sort the Homepage's blog lists by **most recent (default)**, **most favorited**, and **least favorited**
+- view user profiles
 - favorite posts
 - write comments
-- reply to comments.
+- reply to comments
+- create an account
+- login an account
+- logout an account
+
+As a **subscribed** user, in addition to the free user functions, they can...
+
+- read both premium and free posts
+- create posts, both free or premium (contribute content)
+- edit/delete their posts
+- view their subscription details in Settings page
+- cancel their active subscription
 
 # Technologies
-bloggies_frontend
-		
-	TypeScript 4.0.3
-	React 17.0.1
-	react-dom 17.0.1
-	react-router-dom 5.2.0
-	redux 4.0.5
-	react-redux 7.2.2
-	redux-thunk 6.0.0
-	redux-persist 6.0.0
-	react-bootstrap 1.4.3
-	moment 4.0.5
-
-bloggies_backend
-
-	TypeScript 4.1.3
-	ts-node 9.1.1
-	Express 4.17.1
-	Json Web Token 8.5.1
-	Bcrypt 5.0.0
-	pg 8.5.1
-	ts-jest 26.4.4 
-	Supertest 6.0.1
-	Docker 20.10.5
-
-bloggies_database
-
-	PostgreSQL:13-alpine
+| bloggies_frontend | versions |bloggies_backend | versions |
+|--|--|--|--|
+|TypeScript| ^4.0.3 |TypeScript  |  ^4.1.3 |
+|React | ^17.0.1|ts-node |^9.1.1|
+|react-dom |^17.0.1|Express| ^4.17.1|
+|react-router-dom| ^5.1.7|Json Web Token | ^8.5.1 |
+|redux |^4.0.5 |Bcrypt | ^5.0.0|
+|react-redux| ^7.2.2 |pg |^8.5.1|
+|redux-thunk |^2.3.0 |ts-jest | ^26.4.4|
+ |redux-persist | ^6.0.0 |Supertest| ^6.1.3 |
+ |react-bootstrap  |^1.4.3 |Docker |20.10.5|
+ |styled-components  |^5.2.1 |
+ |moment  |^2.29.1 |
+ |stripe.js  | ^1.13.1 |
+ |stripe | ^8.139.0 |
+ |react-stripe-elements  |^6.1.2 |
 
 # Installation
 To run this project, you must have Docker installed and download/clone this repository to get the `bloggies_backend` and `bloggies_frontend` files.
@@ -69,75 +59,114 @@ To setup the **frontend** run the following commands in the command line (from t
 	$ cd bloggies_frontend
 	$ yarn add yarn.lock
 	$ npm start  		**code will be on localhost:3000**
+**To run frontend tests, run `$ npm test` in `bloggies_frontend/`**
 
 #  Architecture Pattern
-The architecture pattern that Bloggies (as a whole) is created upon is the **Layered Architecture**.
+
+| Area |Type  |
+|--|--|
+|Entire app  |Layered architecture  |
+|Frontend | Flux architecture|
+|Backend | Repository pattern |
 
 ## Frontend Architecture
-Bloggies' frontend is a **Single Page Application** using React. The frontend utilizes a form of seperation through **seperation by UI component** and each component is written with their related functioning logic included. Depending on the components, Bloggies' **higher-order** components are more likely to contain heavier logic to pass down their child components in order to keep **lower-order** components *reuseable and flexible* and be maintable as the project grows in the future.
 
-Data in the frontend is handled by a state management library, **Redux**, through a Provider that enables application-wide access to a Store of states. Every component under the Provider have the ability to subscribe to read the Store's states and dispatch actions to alter the the states of the Store. Global state management was used in order to **reduce propdrilling**. **Redux** was chosen as the favorable global state management over React's `useContext` hook because Redux state can be persisted with the use of `redux-persist` library and by doing so, a user can be logged in despite ending a session without needing to do additional API calls by persisting the user-related data: `user object` and `favorites array`. Another advantage of using Redux is the usage of action creators and a rootReducer, which allows the code to be more organized by creating modular action creators and a main rootReducer that deals with only changing the global state object (the store).
+Learning Circle's frontend is a **Single Page Application** using React. The frontend architecture is the **Flux architecture**. The frontend utilizes a form of separation through **separation by UI component** and each component is written with their related functioning logic included within. Depending on the components, Learning Circle's **higher-order** components are more likely to contain heavier logic to pass down their child components in order to keep **lower-order** components *reusable and flexible* and be maintainable as the project grows in the future.
 
-Routes were originally written to be seperated by `PublicRoutes/` and `PrivateRoutes/`, however it was changed to just `Routes/` because only the `ComposePage` component requires a user to be logged in to access.
+Data in the frontend is handled by a state management library, **Redux**, through a Provider that enables application-wide access to a Store of states. Every component under the Provider have the ability to subscribe to read the Store's states and dispatch actions to alter the the states of the Store. Global state management was used in order to **reduce prop-drilling**. **Redux** was chosen as the favorable global state management over React's `useContext` hook because Redux state can be persisted with the use of `redux-persist` library and by doing so, a user can be logged in despite ending a session without needing to do additional API calls by persisting the user-related data: `user object` and `favorites array`. Another advantage of using Redux is the usage of action creators and a rootReducer, which allows the code to be more organized by creating modular action creators and a main rootReducer that deals with only changing the global state object (the store).
+
+>Future considerations: Separate `Routes/` into `PublicRoutes/` and `PrivateRoutes/` to add route protection.
 
 ## Backend Architecture
-Within the backend code, files are seperated by `routes/` , that allows frontend code to request data from available endpoints,  and `models/`, which allows view functions to invoke a model's class method(s) to access the PostgreSQL database (through the `pg` library). 
+Files are separated by `routes/` , that allows frontend code to request data from available endpoints, and `models/`, which allows view functions to invoke a model's class method(s) to access the PostgreSQL database (through the `pg` library).
+
 > In summary, the backend architecture utilizes the **repository pattern**.
 
-To create API endpoints, `Express` was used. `routes/` were seperated by `resource` (RESTful) and uses proper HTTP verbs for each CRUD operation. Each file in `models/` is a Class representing a table (join tables excluded) in the Database Schema: `users`, `posts`, `favorites`, and `comments`. These model classes have class methods to be invoked within the view functions of `routes/`. Each class method was written to perform a single query to simplify as much as possible. 
+ `Express` was used to create endpoints. `routes/` were separated by `resource` (RESTful) and uses proper HTTP verbs for each CRUD operation. Each file in `models/` is a Class representing a table (join tables excluded) in the Database Schema: `users`, `user_auth`, `posts`, `bookmarks`, and `comments`. These model classes have class methods to be invoked within the view functions of `routes/`. Each class method was written to perform a single query to simplify as much as possible.
+> exception is the `Checkout model` for Stripe API, which does not has its own table within our database.
+
+The Stripe API is used for creating purchases and subscriptions for our premium memberships. A `Checkout class` was created with methods for Stripe-related methods. 
 
 ## Database Schema (PSQL)
-![bloggies_database_schema](https://i.imgur.com/qTdSjmJ.png)
+![learning_circle_schema](https://i.imgur.com/FgBP2gu.png)
 
 When planning the database schema, a couple points were kept in mind:
-1. Reduce unnecessary columns 
-	- Although having such columns can make it easier to write queries for, extra columns in the long run can take up extra space and thus, increasing costs and maintenance. Unnecessary columns are data columns that can be obtained through a more complex SQL query using `JOIN`'s and `GROUP BY`'s. For example, getting the `number of favorites` for a post. 
+
+1. Reduce unnecessary columns
+
+- Although having such columns can make it easier to write queries for, extra columns in the long run can take up extra space and thus, increasing costs and maintenance. Unnecessary columns are data columns that can be obtained through a more complex SQL query using `JOIN`'s and `GROUP BY`'s. For example, getting the `number of bookmarks` for a post.
+
 2. Data required for specific functionalities
-	- Since Bloggies was a project that had a base functionality guideline, tables and columns were designed to meet the needs of those functionalities. In addition to those, Bloggies was planned to also have a commenting and reply functionality as well and their tables were designed to be able to scale for the commenting depth (in case Bloggies was to implement a reddit-style commenting system).
+
+- Since Learning Circle was a project that had a base functionality guideline, tables and columns were designed to meet the needs of those functionalities. The Stripe API recommended a minimum of data to store in the database as well to keep track of customers and subscriptions.
+
 3. User satisfaction
-	- When thinking of data to store, a user's perspective was used to think of what informations were too much to provide and what type of data they would like to view in the application. User registration information required was reduced to `username` , `password` and a `display_name`. The `join_date` would allow users to be able to differentiate between each other when searching for a user using the **search function**, as the `display_name` is not unique and the user's `username` is only used for authentication purposes.
 
-Bloggies' database is composed of five tables: 
-1. **users** - The `users` table keeps a registered user's information. 
-						- For authentication, a user must have a `username` and password (that is saved as a `hashed_pwd`) to login.
-						- The `display_name` is used as the user's display name when using Bloggies' functionalities.
-						- The `join_date` is used in when searching for a specific user in the search function and is displayed when a user appears as a search result.
-	>**users relationships to other tables:**
-	- `users` *one-to-many* && *many-to-many* `posts`,
-	- `users` *one-to-many* `favorites`,
-	- `users` *one-to-many* `comments`
-				
-2. **posts** - The `posts` table keeps a blog post's data.
-					- `title` is a required column in order to create a post. 
-					- `description` is a short 'sub-title' to the blog post and is optional.
-					- `body`of a post is used as the main article of the blog post and is optional.
-					- An `author_id` is required to create a post because only registered users may 	create posts.
-					- `created_at` and `last_updated_at` are timestamps to show users how old a post is and when the post was last updated. This will also allow users to sort the posts by most recents.
-	>**posts relationships to other tables:**
-	- `posts` *one-to-many* `favorites`,
-	- `posts` *one-to-many* `comments`,
-	- `posts` *many-to-one* && *many-to-many* `users`
-				
-3. **favorites** - The `favorites` table is a **join** table between the `users` and `posts` for a user favoriting a post. (ex. *a user may have many favorited posts and a post may have many favorites by users.*) 
-				- A unique pair of `post_id` and `user_id` is kept in this table to ensure that a user may only like a specific post once at a time. 
-				- A `GROUP BY` query will be able to show the number of favorites a post has and sort by most/least favorited.
-4. **comments** - The `comments` table stores all comments to a post.
-							- `author_id` is required to make a comment. Only logged in users may comment.
-							- `post_id` is required since a comment may only be made to a post.
-							- `body` is a required column and is the comment's text/main content.
-							- `created_at` is a timestamp that shows users when a comment was made.
-							- `is_reply` is a boolean that denotes whether a comment was made as a comment to a post or a comment to another comment (a **reply**)
-	>**comments relationships to other tables:**
-	- `comments` *many-to-one* `users`,
-	- `comments` *many-to-one* `posts`,
-	- `comments` *one-to-many* `replies`
-5. **replies**- The `replies` table stores two foreign keys related to the `comments`'s `id` column. 
-					- `comment_id` is the `id` of the **reply comment**
-					- `reply_to_comment_id` is the `id` of the comment the `replies.comment_id` is meant to be a reply for. `reply_to_comment_id` is an `id` from the `comments` table.
-	>**replies relationships to other tables:**
-	- `replies` *one-to-many* `comments`
+- When thinking of data to store, a user's perspective was used to think of what informations were too much to provide and what type of data they would like to view in the application. User registration information required was reduced to `email` , `password` and a `display_name`. The `join_date` would allow users to be able to differentiate between each other when searching for a user using the **search function**. The `display_name` is  unique for the author name for a post and the user's `email` is only used for authentication purposes and email notifications.
 
-**NOTE: A reply cannot be made to a reply comment. Not just yet... :D**
+Learning Circle's database is composed of six tables:
+
+1.  **user_auth** - The `user_auth` table keeps a user's authentication information.
+- `email` and `hashed_pwd` is required to be stored to login.
+- The `join_date` is used to track the date the user registered.
+
+>**user_auth relationships to other tables:**
+>-`user_auth` *one to one* `users`
+
+2.  **users** - The `users` table keeps a registered user's information.
+- `display_name` is a required field to represent a user in the frontend.
+- `membership_status` has 5 states: `none, pending, accepted, active, inactive` 
+- `membership_start_date` `membership_end_date` are dates from Stripe for when a subscribed user's `current_period_start` and `current_period_end` dates.
+- `last_submission_date` tracks the user's contributions for our weekly contribution requirement.
+- `cancel_at` date will record the date that the user must contribute by to retain their subscription.
+- `customer_id` and `subscription_id` are the ids of the user's associated Stripe customer and subscription object.
+
+>**users relationships to other tables:**
+>-  `users`  *one-to-many* && *many-to-many* `posts`,
+>-  `users`  *one-to-many*  `bookmarks`,
+>-  `users`  *one-to-many*  `comments`
+>-  `users`  *one-to-one*  `user_auth`
+
+3.  **posts** - The `posts` table keeps a blog post's data.
+
+- `title` is a required column in order to create a post.
+- `description` is a short 'sub-title' to the blog post and is optional.
+- `body`of a post is used as the main article of the blog post and is optional.
+- An `author_id` is required to create a post because only registered users may create posts.
+- `created_at` and `last_updated_at` are timestamps to show users how old a post is and when the post was last updated. This will also allow users to sort the posts by most recents.
+- `is_premium` marks a post as either a premium post or free post.
+
+>**posts relationships to other tables:**
+>-  `posts`  *one-to-many*  `bookmarks`,
+>-  `posts`  *one-to-many*  `comments`,
+>-  `posts`  *many-to-one* && *many-to-many*  `users`
+
+4.  **bookmarks** - The `bookmarks` table is a **join** table between the `users` and `posts` for a user bookmarking a post. (ex. *a user may have many bookmarked posts and a post may have many bookmarks by users.*)
+
+- A unique pair of `post_id` and `user_id` is kept in this table to ensure that a user may only like a specific post once at a time.
+- A `GROUP BY` query will be able to show the number of favorites a post has and sort by most/least favorited.
+
+5.  **comments** - The `comments` table stores all comments to a post.
+
+- `author_id` is required to make a comment. Only logged in users may comment.
+- `post_id` is required since a comment may only be made to a post.
+- `body` is a required column and is the comment's text/main content.
+- `created_at` is a timestamp that shows users when a comment was made.
+- `is_reply` is a boolean that denotes whether a comment was made as a comment to a post or a comment to another comment (a **reply**)
+
+>**comments relationships to other tables:**
+>-  `comments`  *many-to-one*  `users`,
+>-  `comments`  *many-to-one*  `posts`,
+>-  `comments`  *one-to-many*  `replies`
+
+6.  **replies**- The `replies` table stores two foreign keys related to the `comments`'s `id` column.
+
+- `comment_id` is the `id` of the **reply comment**
+- `reply_to_comment_id` is the `id` of the comment the `replies.comment_id` is meant to be a reply for. `reply_to_comment_id` is an `id` from the `comments` table.
+
+>**replies relationships to other tables:**
+>-  `replies`  *one-to-many*  `comments`
+  
 
 ## React Components
 ![bloggies_react_components_diagram](https://i.imgur.com/WbrFQKk.png)
