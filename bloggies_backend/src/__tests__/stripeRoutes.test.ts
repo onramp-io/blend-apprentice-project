@@ -1,87 +1,44 @@
 import Stripe from "stripe";
 import request from "supertest";
 import app from "../app";
-import { PRICE_ID } from "../config";
 import db from "../db";
 import { ACCEPTED, ACTIVE } from "../membershipStatuses";
-import User from "../models/user";
-import UserAuth from "../models/userAuth";
 import { stripe } from "../routes/stripe";
+import { makeNewAttachedPaymentMethodAndCustomer, makeNewSubscriptionForCustomer, makeNewUser } from "./helpers/makeFunctions";
+import * as m from "./helpers/mocks";
 
-const INVALID_CUSTOMER_ID = "cus_notarealcustomerid";
-const INVALID_SUB_ID = "sub_notarealsubid";
-const TEST_EMAIL = "testStripe@test.com";
-const mockCard = {
-  number: '4242424242424242',
-  exp_month: 3,
-  exp_year: 2025,
-  cvc: '314'
-}
-const mockInvalidCard = {
-  number: '4000000000000002',
-  exp_month: 3,
-  exp_year: 2025,
-  cvc: '314'
-}
-const mockValidFailedCard = {
-  number: '4000000000000341',
-  exp_month: 3,
-  exp_year: 2025,
-  cvc: '314'
-}
 let testPaymentMethod: Stripe.PaymentMethod;
 let testSecondPaymentMethod: Stripe.PaymentMethod;
 let testInvalidCardPaymentMethod: Stripe.PaymentMethod;
 let testUserId: number;
 let testToken: string;
-let testCustomer: Stripe.Customer;
+let testCustomerNoPaymentMethod: Stripe.Customer;
 let testCustomerWithSub: Stripe.Customer;
 let testSubscription: Stripe.Subscription;
 
+jest.setTimeout(10000);
+
 describe("Test Stripe routes", function () {
   beforeAll(async function () {
-    testPaymentMethod = await stripe.paymentMethods.create({ type: "card", card: mockCard });
+    testPaymentMethod = await stripe.paymentMethods.create({ type: "card", card: m.VALID_CARD });
+    testSecondPaymentMethod = await stripe.paymentMethods.create({ type: "card", card: m.VALID_CARD });
+    testInvalidCardPaymentMethod = await stripe.paymentMethods.create({ type: "card", card: m.INVALID_CARD });
 
-    testSecondPaymentMethod = await stripe.paymentMethods.create({ type: "card", card: mockCard });
-
-    testInvalidCardPaymentMethod = await stripe.paymentMethods.create({ type: "card", card: mockInvalidCard });
-
-    testCustomerWithSub = await stripe.customers.create({
-      email: TEST_EMAIL
-    });
-
-    await stripe.paymentMethods.attach(testPaymentMethod.id, {
-      customer: testCustomerWithSub.id
-    });
-
-    await stripe.customers.update(testCustomerWithSub.id, {
-      invoice_settings: {
-        default_payment_method: testPaymentMethod.id
-      }
-    });
-
-    testSubscription = await stripe.subscriptions.create({
-      customer: testCustomerWithSub.id,
-      items: [{
-        plan: PRICE_ID
-      }]
-    });
+    testCustomerWithSub = await makeNewAttachedPaymentMethodAndCustomer(m.VALID_CARD, m.TEST_EMAIL);
+    testSubscription = await makeNewSubscriptionForCustomer(testCustomerWithSub.id);
   });
-  
+
   beforeEach(async function () {
-    jest.setTimeout(1000 * 60 * 10);
-    await db.query("DELETE FROM user_auth");
-    await db.query("DELETE FROM users");
-  
-    const userData = await UserAuth.register(TEST_EMAIL, 'password');
+
+    await reset();
+    
+    const userData = await makeNewUser(m.TEST_EMAIL, 'password', 'testStripe');
     testToken = userData.token;
     testUserId = userData.user.id;
-  
-    await User.createUser(testUserId, 'testStripe');
     await db.query(`UPDATE users SET membership_status = $1 WHERE user_id = $2`, [ACCEPTED, testUserId]);
-  
-    testCustomer = await stripe.customers.create({
-      email: TEST_EMAIL
+
+    testCustomerNoPaymentMethod = await stripe.customers.create({
+      email: m.TEST_EMAIL
     });
   });
 
@@ -102,7 +59,7 @@ describe("Test Stripe routes", function () {
     UPDATE users 
       SET customer_id = $1
       WHERE user_id = $2`,
-      [INVALID_CUSTOMER_ID, testUserId]);
+      [m.INVALID_CUSTOMER_ID, testUserId]);
 
     const resp = await request(app)
       .post("/checkout/create-customer")
@@ -118,7 +75,7 @@ describe("Test Stripe routes", function () {
       .set("Cookie", [`token=${testToken}`])
       .send({
         paymentMethodId: testSecondPaymentMethod.id,
-        customerId: testCustomer.id
+        customerId: testCustomerNoPaymentMethod.id
       });
 
     const userResult = await db.query(`SELECT subscription_id FROM users WHERE user_id = $1`, [testUserId]);
@@ -163,8 +120,8 @@ describe("Test Stripe routes", function () {
         subscription_id: testSubscription.id
       });
 
-      expect(resp.status).toBe(200);
-      expect(resp.body.cancelled_subscription.id).toBe(testSubscription.id);
+    expect(resp.status).toBe(200);
+    expect(resp.body.cancelled_subscription.id).toBe(testSubscription.id);
   });
 
   test("Invalid DELETE /checkout/cancel-subscription - handles an invalid subscription id", async function () {
@@ -172,11 +129,11 @@ describe("Test Stripe routes", function () {
       .delete("/checkout/cancel-subscription")
       .set("Cookie", [`token=${testToken}`])
       .send({
-        subscription_id: INVALID_SUB_ID
+        subscription_id: m.INVALID_SUB_ID
       });
 
-      expect(resp.status).toBe(400);
-      expect(resp.body.error.message).toBe(`No such subscription: ${INVALID_SUB_ID}`)
+    expect(resp.status).toBe(400);
+    expect(resp.body.error.message).toBe(`No such subscription: ${m.INVALID_SUB_ID}`)
   });
 
   test("Invalid POST /checkout/create-subscription - handles declined card payment method", async function () {
@@ -185,39 +142,23 @@ describe("Test Stripe routes", function () {
       .set("Cookie", [`token=${testToken}`])
       .send({
         paymentMethodId: testInvalidCardPaymentMethod.id,
-        customerId: testCustomer.id
+        customerId: testCustomerNoPaymentMethod.id
       });;
 
-      expect(resp.status).toBe(402);
-      expect(resp.body.error.message).toBe("Your card was declined.");
+    expect(resp.status).toBe(402);
+    expect(resp.body.error.message).toBe("Your card was declined.");
   });
 
   test("POST /retry-invoice", async function () {
     // creating a failed subscription payment scenerio
-    const failedPaymentMet = await stripe.paymentMethods.create({ type: "card", card: mockValidFailedCard });
-    const cus = await stripe.customers.create({
-      email: TEST_EMAIL
-    });
-    await stripe.paymentMethods.attach(failedPaymentMet.id, {
-      customer: cus.id
-    });
-    await stripe.customers.update(cus.id, {
-      invoice_settings: {
-        default_payment_method: failedPaymentMet.id
-      }
-    });
-    const sub = await stripe.subscriptions.create({
-      customer: cus.id,
-      items: [{
-        plan: PRICE_ID
-      }]
-    });
-
+    const cus = await makeNewAttachedPaymentMethodAndCustomer(m.VALID_FAIL_CHARGE_CARD, m.TEST_EMAIL);
+    const sub = await makeNewSubscriptionForCustomer(cus.id);
+  
     expect(sub.status).toBe("incomplete");
 
     // create a payment method with a valid card and call endpoint
-    const newPaymentMet = await stripe.paymentMethods.create({ type: "card", card: mockCard });
- 
+    const newPaymentMet = await stripe.paymentMethods.create({ type: "card", card: m.VALID_CARD });
+
     const resp = await request(app)
       .post("/checkout/retry-invoice")
       .set("Cookie", [`token=${testToken}`])
@@ -226,8 +167,18 @@ describe("Test Stripe routes", function () {
         paymentMethodId: newPaymentMet.id,
         invoiceId: sub.latest_invoice
       });
-    
+
     expect(resp.status).toBe(200);
     expect(resp.body.status).toBe("open");
   });
+
+  afterAll(async () => {
+    await reset();
+    await db.end();
+  })
 });
+
+async function reset() { 
+  await db.query("DELETE FROM user_auth");
+  await db.query("DELETE FROM users");
+};

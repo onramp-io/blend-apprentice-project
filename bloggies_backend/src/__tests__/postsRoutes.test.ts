@@ -1,8 +1,8 @@
 import request from "supertest";
 import app from "../app";
 import db from "../db";
-import User from "../models/user";
-import UserAuth from "../models/userAuth";
+import { makeNewUser } from "./helpers/makeFunctions";
+import * as m from "./helpers/mocks";
 
 let token: string;
 let validUserId: number;
@@ -13,28 +13,26 @@ describe("Test Post routes", function () {
   beforeAll(async function () {
     await db.query("DELETE FROM users");
 
-    const userData = await UserAuth.register('GrahaTia', 'password');
+    const userData = await makeNewUser(m.TEST_EMAIL, "password", m.TEST_DISPLAY_NAME);
     token = userData.token;
     validUserId = userData.user.id;
 
-    await User.createUser(validUserId, 'Crystal Exarch')
-
-    const anotherUserData = await UserAuth.register('Gaia', 'password');
+    const anotherUserData = await makeNewUser(
+      m.TEST_SECONDARY_EMAIL,
+      "password",
+      m.TEST_SECONDARY_DISPLAY_NAME);
     secondToken = anotherUserData.token;
-
-    await User.createUser(anotherUserData.user.id, "ff14");
-  })
+  });
 
   beforeEach(async function () {
     await db.query("DELETE FROM posts");
-    const postData = await db.query(`INSERT INTO posts(title, description, body, author_id, is_premium) 
-                            VALUES
-                                ('Strawberry Basil Soda', 
-                                'initial description', 
-                                'initial body', 
-                                ${validUserId},
-                                false)
-                            RETURNING id`);
+
+    const postData = await db.query(`
+        INSERT INTO posts(title, description, body, author_id, is_premium) 
+          VALUES ($1, $2, $3, $4, false)
+          RETURNING id`,
+      [m.TEST_POST_TITLE, m.TEST_POST_DESC, m.TEST_POST_BODY, validUserId]);
+
     validPostId = postData.rows[0].id;
   });
 
@@ -72,7 +70,7 @@ describe("Test Post routes", function () {
       .get(`/posts/search?term=strawberry`);
     expect(resp.status).toBe(200);
     expect(resp.body.posts.length).toBe(1);
-    expect(resp.body.posts[0].title).toBe("Strawberry Basil Soda");
+    expect(resp.body.posts[0].title).toBe(m.TEST_POST_TITLE);
   });
 
   /** GET /posts/:postId  => status 200, { post } */
@@ -80,7 +78,7 @@ describe("Test Post routes", function () {
     const resp = await request(app)
       .get(`/posts/${validPostId}`);
     expect(resp.status).toBe(200);
-    expect(resp.body.post.title).toBe("Strawberry Basil Soda");
+    expect(resp.body.post.title).toBe(m.TEST_POST_TITLE);
   });
 
   /** PATCH /posts/:postId  => status 200, { lastUpdatedDate } */
@@ -143,7 +141,7 @@ describe("Test Post routes", function () {
         body: "test body",
         is_premium: false
       });
-      
+
     expect(resp.status).toBe(403);
     expect(resp.body.error.message).toBe("A membership is required to publish a post.");
   });
