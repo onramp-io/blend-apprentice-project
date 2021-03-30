@@ -18,9 +18,7 @@ const PaymentPage = ()  => {
 
 
   const handleSubmit = async (event:any) => {
-    console.log('for the love of GOD');
     event.preventDefault();
-    console.log('for');
     
     if (!stripe || !elements) {
       console.log('strippppppe');

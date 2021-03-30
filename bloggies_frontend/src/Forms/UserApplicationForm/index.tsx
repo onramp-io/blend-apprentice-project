@@ -6,7 +6,6 @@ import { updateMembershipStatus } from "../../redux/actionCreators";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { CustomReduxState } from "../../custom";
-import { createCustomer } from "../../redux/stripeAction";
 
 interface IQuestions {
   question: string;
@@ -112,7 +111,6 @@ function UserApplicationForm({ show }: IProps) {
     // dispatches action to update redux store with membership status
     dispatch(updateMembershipStatus(answer));
     // sends user to membership status form
-    dispatch(createCustomer())
     history.push("/register/membership-status");
   };
   return (
