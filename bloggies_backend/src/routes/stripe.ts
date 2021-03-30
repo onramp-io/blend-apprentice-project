@@ -7,6 +7,7 @@ import { STRIPE_API_KEY } from "../config";
 import ExpressError from "../expressError";
 import { ableToStartSub, timePeriod } from "../utils";
 import { ACTIVE } from "../membershipStatuses";
+import Email from "../models/email";
 export const stripeRouter = express.Router();
 
 /* create new Stripe instance to facilitate interactions with Stripe API*/
@@ -19,36 +20,62 @@ stripeRouter.post("/webhook", async function (req: Request, res: Response, next:
   let event = req.body;
   let data: any;
   let sub: Stripe.Subscription;
-  try {
+
+  try {    
     switch (event.type) {
       case 'invoice.upcoming':
-        // invoice object
+        //invoice object
         data = event.data.object;
-        console.log(`invoice upcoming, subscription almost ending for  cust ${data.customer}`);
-        break;
+        sub = await stripe.subscriptions.retrieve(data.subscription);
+        const user = await User.getUserBySubscriptionId(sub.id);
+
+        //check today against cancel_at date to see if user is overdue for a post
+        const now = new Date();
+        const isOverdue = now >= user.cancel_at;
+
+        if(isOverdue) {
+          try{
+            await Checkout.stripeSubscriptionCancel(user.user_id);
+          } catch(err) {
+            return next(err);
+          }
+        } else {
+          const userWarningInfo = {email: user.email, membership_end_date: user.membership_end_date}
+          await Email.sendEndDateWarning(userWarningInfo);
+          console.log(`invoice upcoming, subscription almost ending for cust ${data.customer}`);
+        }
       case 'invoice.paid':
-        // invoice object
+        //invoice object
         data = event.data.object;
         console.log(`invoice PAID for: ${data.customer}`);
         break;
       case 'invoice.payment_succeeded':
         // invoice object
         data = event.data.object;
-        sub = await stripe.subscriptions.retrieve(data.subscription);
-        let cancelAt = sub.current_period_start + timePeriod;
-        await User.startSubscription(sub.id, sub.current_period_start, sub.current_period_end, cancelAt);
+        try{
+          sub = await stripe.subscriptions.retrieve(data.subscription);
+          let cancelAt = sub.current_period_start + timePeriod;
+          await User.startSubscription(sub.id, sub.current_period_start, sub.current_period_end, cancelAt);
+          const userInfo = await User.getUserBySubscriptionId(sub.id);
+          await Email.sendConfirmation(userInfo.email, ACTIVE);
+          console.log('done with user update')
+        } catch(err) {
+          return next(err)
+        }
         break;
       case 'invoice.payment_failed':
-        // invoice object
+        //invoice object
         data = event.data.object;
         console.log(`invoice failed for: ${data.customer}`);
         sub = await stripe.subscriptions.retrieve(data.subscription);
         await User.cancelSubscription(data.subscription, sub.current_period_end);
         break;
       case 'customer.subscription.deleted':
-        // subscription object
+        console.log("subscription deleted");
         data = event.data.object;
         await User.cancelSubscription(data.id, data.current_period_end);
+        const userInfo = await User.getUserBySubscriptionId(data.id);
+        await Email.sendExpiredNotification(userInfo.email);
         break;
       case 'customer.subscription.created':
         data = event.data.object;
@@ -62,8 +89,7 @@ stripeRouter.post("/webhook", async function (req: Request, res: Response, next:
       default:
         console.log("web hook default, unhandled event", event.type);
         break;
-    }
-
+      }
       return res.json({ received: true });
     } catch (err) {
       return next(err);
@@ -86,6 +112,7 @@ stripeRouter.post(
   }
 );
 
+<<<<<<< HEAD
 /** POST create a customer for a user */
 <<<<<<< HEAD
 stripeRouter.post("/create-customer", ensureLoggedIn, async function (req: Request, res: Response, next: NextFunction) {
@@ -99,6 +126,8 @@ stripeRouter.post("/create-customer", ensureLoggedIn, async function (req: Reque
     return res.status(201).json({ customer });
   }
 =======
+=======
+>>>>>>> 0c1417919c5101dc243368a6393c33037b8790e2
 stripeRouter.post(
   "/create-customer",
   ensureLoggedIn,
@@ -112,7 +141,10 @@ stripeRouter.post(
       await User.updateUser(user_id, { customer_id: customer.id });
       return res.status(201).json({ customer });
     }
+<<<<<<< HEAD
 >>>>>>> 984781a2c9a44a1f6803b7c55411d616d38115bc
+=======
+>>>>>>> 0c1417919c5101dc243368a6393c33037b8790e2
 
     return next(
       new ExpressError("Customer id already exists for this user.", 400)
