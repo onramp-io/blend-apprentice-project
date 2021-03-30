@@ -50,7 +50,7 @@ const PaymentButton = styled(Button)`
   background-color: #28a745;
   border-color: #28a745;
   &:hover{
-      background-color: #218838;
+      background-color: #218838;g
       border-color: #1e7e34;
   }
   &:active {
@@ -106,7 +106,7 @@ function RegisterStatusPage() {
     text =
       "We are sorry to see you go! Since you have filled out this application prior, no need to refill it out should you again choose to be a premium user! We would love to have you back as a part of the Learning Circle, click below to re-activate your membership!";
   }
-
+g
   return (
     <RegisterStatusContainer className="RegisterStatusPage">
       <RegisterStatusItem>
