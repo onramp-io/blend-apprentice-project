@@ -1,5 +1,10 @@
 ﻿# Welcome to Learning Circle!
 Learning Circle is a freemium blog post web application developed primarily in TypeScript; Express.js and React.js.
+
+Learning Circle offers a paid premium monthly subscription for eligible users that allows access to our site's premium blog posts and allows subscribed users contribute posts as well. 
+
+To retain the premium subscription, the subscribed user must contribute a post once a week to the Learning Circle. Otherwise, membership will be canceled and no refund will be available.
+
 # Functionalities
 As a **free** user, they can...
 
