@@ -16,6 +16,7 @@ function SignUpForm({ signUp, serverErr }: IProp) {
   const [formData, setFormData] = useState(INITIAL_FORM_VALUES);
   const [validated, setValidated] = useState(false);
   const [isPwdMatch, setisPwdMatch] = useState(true);
+  const [validationErr, setValidationErr] = useState("");
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = evt.target;
@@ -42,20 +43,22 @@ function SignUpForm({ signUp, serverErr }: IProp) {
       
     if (!valid || !formDataValid) {
       evt.stopPropagation();
+      setValidationErr("Some of your values are not valid! Please check and try again.")
     } else {
+      setValidated(true);
       signUp(formData);
     }
-    setValidated(true);
   }
 
   return (
     <Container className="SignUp">
       <div className="SignUp-wrapper d-flex flex-column">
         {serverErr && <Alert variant="danger" className="App-alert">{serverErr}</Alert>}
+        {validationErr && <Alert variant="danger" className="App-alert">{validationErr}</Alert>}
         <Form noValidate validated={validated} className="SignUp-form" onSubmit={handleSubmit}>
           <p className="SignUp-title text-center">Account Registration</p>
           <Form.Group controlId="validationCustom01">
-            <Form.Label>Username</Form.Label>
+            <Form.Label>Email</Form.Label>
             <Form.Control name="email" value={formData.email} placeholder="Email" onChange={handleChange} isInvalid={Boolean(serverErr)} required></Form.Control >
             <Form.Text className="text-muted">This will be the username you login with.</Form.Text>
             <Form.Control.Feedback type="invalid">Must be at least 4 characters.</Form.Control.Feedback>

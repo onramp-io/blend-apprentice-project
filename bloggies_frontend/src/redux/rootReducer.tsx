@@ -12,8 +12,7 @@ function rootReducer(state = INITIAL_STATE, action: Action) {
   switch (action.type) {
     case t.UPDATE_CUSTOMER_ID: 
       return {...state, user:{ ...state.user, customer_id: action.payload.customer.id}};
-    case t.UPDATE_SUBSCRIPTION_ID: 
-      console.log("UPDATE SUBSCRIPTION ID", action.payload);
+    case t.UPDATE_SUBSCRIPTION_ID:
       return {...state, user: { ...state.user, subscription_id: action.payload.subscription_id}};
     case t.UPDATE_MEMBERSHIP_STATUS:
       return { ...state, user: { ...state.user, membership_status: action.payload.membership_status } };
