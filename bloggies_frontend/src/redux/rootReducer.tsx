@@ -30,7 +30,6 @@ function rootReducer(state = INITIAL_STATE, action: Action) {
       const updateAddFavPosts = state.posts.map((p: Post) => {
         // Increment the favorite count of the post
         if (p.id === action.payload.post.id) {
-          // POST-SUBMISSION UPDATE: adding a "currentValue variable".
           let currentValue = parseInt(p.bookmark_count) || 0;
           const newFavCount = currentValue + 1;
           p.bookmark_count = newFavCount.toString();
