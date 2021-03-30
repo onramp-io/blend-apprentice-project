@@ -1,15 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dropdown } from "react-bootstrap";
 import { Post } from "../custom";
 
 interface IProp {
   posts: Post[];
   handlePostFilter: Function;
+  currentSort: string
 }
 
-function BlogFilter({ posts, handlePostFilter }: IProp) {
+function BlogFilter({ posts, handlePostFilter, currentSort }: IProp) {
   const DEFAULT_FILTER_SELECT = "all";
   const [ filterType, setfilterType ] = useState<string>(DEFAULT_FILTER_SELECT);
+
+  useEffect(() => {
+    handleSelection(currentSort);
+  }, [posts]);
 
   const handleSelection = (eventKey: string | null) => {
     let filteredPosts: Post[] = [];

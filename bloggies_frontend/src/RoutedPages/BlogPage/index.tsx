@@ -16,7 +16,8 @@ function BlogPage() {
   const currentUser = useSelector((st: CustomReduxState) => st.user);
   const dispatch = useDispatch();
   const [posts, setPosts] = useState<Array<Post>>([]);
-  const [sortType, setSortType] = useState("mostRecent")
+  const [sortType, setSortType] = useState("mostRecent");
+  const [postFilterType, setPostFilterType] = useState("all");
 
   useEffect(function handleLoadPosts() {
     // Fetch for updated membership status if logged in (FE handles UI theme btwn un/paid)
@@ -30,9 +31,13 @@ function BlogPage() {
   }, []);
 
   // invoked in `SortSelection` component when a user chooses a sort type in the dropdown.
-  const handlePostSort = (sortedPosts: Array<Post>, newSortType: string) => {
+  const handleBookmarkFilter = (sortedPosts: Array<Post>, newSortType: string) => {
     setPosts(sortedPosts);
     setSortType(newSortType);
+
+    if (postFilterType !== "all") {
+      setPostFilterType("all");
+    };
   }
 
   const handlePostFilter = (filteredPosts: Array<Post>, newFilterType: string) => {
@@ -40,6 +45,11 @@ function BlogPage() {
       setPosts(filteredPosts);
     } else {
       setPosts(postsList);
+    }
+    setPostFilterType(newFilterType);
+
+    if (sortType !== "mostRecent") {
+      setSortType("mostRecent");
     }
   }
 
@@ -51,10 +61,10 @@ function BlogPage() {
             <h1 className="text-left">Bloggies newsfeed</h1>
           </Col>
           <Col md={3}>
-            <SortSelection handlePostSort={handlePostSort} posts={postsList} currentSort={sortType} />
+            <SortSelection key={sortType} handlePostSort={handleBookmarkFilter} posts={postsList} currentSort={sortType} />
           </Col>
           <Col md={3}>
-            {currentUser.membership_status === "active" && <BlogFilter posts={postsList} handlePostFilter={handlePostFilter} />}
+            {currentUser.membership_status === "active" && <BlogFilter key={postFilterType} posts={postsList} handlePostFilter={handlePostFilter} currentSort={postFilterType}/>}
           </Col>
         </Row>
         <BlogList key={sortType} posts={posts} />
