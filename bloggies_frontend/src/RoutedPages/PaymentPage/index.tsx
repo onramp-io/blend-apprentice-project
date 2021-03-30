@@ -2,13 +2,7 @@ import React, { ReactEventHandler, useState } from "react";
 import "./PaymentPage.css"
 import styled from 'styled-components'
 import { CardElement, useStripe, useElements} from "@stripe/react-stripe-js"; 
-<<<<<<< HEAD
-import { BASE_URL } from "../../config";
-=======
-import {CreateTokenCardData} from '@stripe/stripe-js';
-import { Form} from "react-bootstrap";
 import { ACTIVE, BASE_URL } from "../../config";
->>>>>>> 984781a2c9a44a1f6803b7c55411d616d38115bc
 import {useDispatch, useSelector} from 'react-redux'
 import { CustomReduxState } from "../../custom";
 import {deleteServerErr, gotServerErr, gotMembershipStatus } from '../../redux/actionCreators'
@@ -147,7 +141,6 @@ const PaymentPage = ()  => {
             color: '#9e2146',
           },
         },
-<<<<<<< HEAD
       }}
       />
     </Card>
@@ -159,17 +152,6 @@ const PaymentPage = ()  => {
   </ContainerDiv>
 
   )
-=======
-        invalid: {
-          color: '#9e2146',
-        },
-      },
-    }}
-  />
-  </Form>
-  </>
-  );
->>>>>>> 984781a2c9a44a1f6803b7c55411d616d38115bc
 }
 
 export default PaymentPage;
