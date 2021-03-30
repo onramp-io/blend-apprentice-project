@@ -2,10 +2,10 @@ import React, { ReactEventHandler, useState } from "react";
 import "./PaymentPage.css"
 import styled from 'styled-components'
 import { CardElement, useStripe, useElements} from "@stripe/react-stripe-js"; 
-import { ACTIVE, BASE_URL } from "../../config";
+import { ACTIVE,BASE_URL } from "../../config";
 import {useDispatch, useSelector} from 'react-redux'
 import { CustomReduxState } from "../../custom";
-import {deleteServerErr, gotServerErr, getMembershipStatus } from '../../redux/actionCreators'
+import {deleteServerErr, gotServerErr, gotMembershipStatus } from '../../redux/actionCreators'
 import {gotSubscription} from '../../redux/stripeAction'
 import {useHistory} from 'react-router-dom'
 
@@ -58,7 +58,7 @@ const PaymentPage = ()  => {
           dispatch(deleteServerErr());
           dispatch(gotSubscription(resData.subscription));
           if(resData.subscription.status === 'active'){
-            dispatch(getMembershipStatus(ACTIVE));
+            dispatch(gotMembershipStatus(ACTIVE));
             history.push('/payment/success');
           }
         } else if(res.status === 402) {
