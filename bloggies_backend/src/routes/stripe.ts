@@ -72,14 +72,10 @@ stripeRouter.post("/webhook", async function (req: Request, res: Response, next:
         break;
       case 'customer.subscription.deleted':
         console.log("subscription deleted");
-        try {
         data = event.data.object;
         await User.cancelSubscription(data.id, data.current_period_end);
         const userInfo = await User.getUserBySubscriptionId(data.id);
         await Email.sendExpiredNotification(userInfo.email);
-        } catch (err) { 
-          console.log(err);
-        }
         break;
       case 'customer.subscription.created':
         data = event.data.object; // subscription object
@@ -89,6 +85,7 @@ stripeRouter.post("/webhook", async function (req: Request, res: Response, next:
           const userInfo = await User.getUserBySubscriptionId(data.id);
           await Email.sendConfirmation(userInfo.email, ACTIVE);
         }
+        break;
       case 'payment_intent.succeeded':
         console.log(`PaymentIntent success for ${event.data.object.amount}`);
         break;
