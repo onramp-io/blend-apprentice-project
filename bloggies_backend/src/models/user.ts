@@ -127,7 +127,7 @@ export default class User {
     try{
       await db.query(
         `UPDATE users
-        SET membership_status = $2, membership_end_date = $3, cancel_at = null
+        SET membership_status = $2, membership_end_date = to_timestamp($3), cancel_at = null
         WHERE subscription_id = $1`,
         [subscriptionId, INACTIVE, end_date]
       );

@@ -1,8 +1,10 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { CustomReduxState } from "../../custom";
 import styled from "styled-components";
 import { useHistory } from "react-router";
+import { ACTIVE, BASE_URL } from "../../config";
+import { deleteServerErr, gotMembershipStatus, gotServerErr } from "../../redux/actionCreators";
 
 // styled components, later could possibly extact to once cetralized style sheet
 const RegisterStatusContainer = styled.div`
@@ -24,12 +26,34 @@ const Paragraph = styled.p`
   margin-top: 50px;
 `;
 
-const Button = styled.button`
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
+const SubParagraph = styled.p`
+  font-size: 18px;
+  margin-top: 50px;
+  color: gray;
 `;
+
+const Button = styled.button`
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+`;
+
+const ActivateSubButton = styled(Button)`
+  background-color: #73B5FF;
+  &:hover{
+    background-color: #3F7CC3;
+    border-color: #3F7CC3;
+  }
+  &:active {
+      background-color: #3F7CC3;
+      border-color: #3F7CC3;
+  }
+  &:focus {
+    box-shadow: 0 0 0 0.2rem #73B5FF;
+    outline: none;
+  }
+`
 
 const NewsFeedButton = styled(Button)`
   background-color: #ffc107;
@@ -71,10 +95,31 @@ const PaymentButton = styled(Button)`
 
 function RegisterStatusPage() {
   const history = useHistory();
+  const dispatch = useDispatch();
   // pulls membership status from redux store
   const checkStatus = useSelector(
     (st: CustomReduxState) => st.user.membership_status
   );
+
+  const handleActivateSubClick = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/users/activate-subscription`, {
+        credentials: "include"
+      });
+      const resData = await res.json();
+      if (res.status === 204) {
+        dispatch(deleteServerErr());
+        dispatch(gotMembershipStatus(ACTIVE));
+        alert(resData.message);
+      } else if (res.status === 500) {
+        dispatch(gotServerErr("Subscription does not exist, please proceed to payment or contact support@bloggies.com."));
+      } else {
+        dispatch(gotServerErr(resData.error.message));
+      }
+    } catch (err) {
+      alert(err);
+    }
+  }
 
   let text: string | null = null;
   // home buttone redirects user to newfeed page
@@ -86,9 +131,19 @@ function RegisterStatusPage() {
   // payment button directs user to stripe success form
   let paymentButton = (
     <PaymentButton
-      onClick={() => history.push("/payment/form")}
+      onClick={() => { 
+        dispatch(deleteServerErr());
+        history.push("/payment/form")
+      }}
     >{`I'm Ready, Sign Me Up!`}</PaymentButton>
   );
+  // manual subscription activation button
+  let manualSubActivateInfo = (
+    <div className="RegisterStatusPage-already-paid-container">
+      <SubParagraph>Already paid?</SubParagraph>
+      <ActivateSubButton onClick={handleActivateSubClick}>{"Check membership status"}</ActivateSubButton>
+    </div>
+  )
 
   // if block below determines what to render as the message as a result of the user status
   if (checkStatus === "none") {
@@ -113,8 +168,9 @@ function RegisterStatusPage() {
         <Paragraph>{text}</Paragraph>
       </RegisterStatusItem>
       <RegisterStatusItem>
-          {/* check to see status of member to see what button to render */}
+        {/* check to see status of member to see what button to render */}
         {checkStatus === 'rejected' || checkStatus === 'pending' || checkStatus === 'none' ? homeButton : paymentButton}
+        {checkStatus === 'accepted' && manualSubActivateInfo}
       </RegisterStatusItem>
     </RegisterStatusContainer>
   );
