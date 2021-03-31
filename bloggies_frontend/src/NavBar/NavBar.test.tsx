@@ -31,15 +31,5 @@ describe('Nav Bar', () => {
     )
     expect(links.first()).toHaveLength(1)
   })
-  // it ("should have a logout button if there is a user id", () => {
-  //   jest.spyOn(ReactRouter, 'useParams').mockReturnValue({ userId: '1', displayName: 'test-user' });
-  //   wrapper = mount(shallow<Component>(
-  //     <Provider store={mockStore(MOCK_STORE)}>
-  //       <BrowserRouter>
-  //         <NavBar/>
-  //       </BrowserRouter>
-  //     </Provider>
-  //   ).get(0));
-  //   console.log(wrapper.debug())
-  // })
+
 })
