@@ -130,8 +130,8 @@ export default class Email {
             from: verifiedSender,
             templateId: 'd-3aa8b6c7059c49999b592116bf95cd7a', //Warning Template
             dynamicTemplateData: {
-                subject: 'Your Learning Circle Membership has Expired',
-                body: 'Your membership has expired either because you did not pay your monthly fee, or because you did not meet the submission criteria. We hate to see you go, but please sign up again if you would like to rejoin!',
+                subject: 'Your Learning Circle Membership has been cancelled',
+                body: 'Your membership has been cancelled either because you canclled it, you did not pay your monthly fee, or because you did not meet the submission criteria. We hate to see you go, but please sign up again if you would like to rejoin!',
                 buttonUrl: FRONTEND_URL
             }
         }
