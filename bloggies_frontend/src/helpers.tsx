@@ -22,7 +22,7 @@ export function changeToURLFriendly(str: string) {
   if (str) {
     // POST-SUBMISSION UPDATE: replace .replaceAll with .replace to allow more browser capability.
     return str.replace(/ /g, "-").toLowerCase();
-  } 
+  }
   return 'no-displayname';
 }
 
@@ -34,7 +34,7 @@ export function removeStrDashes(str: string) {
   if (str) {
     // POST-SUBMISSION UPDATE: replace .replaceAll with .replace to allow more browser capability.
     return str.replace(/-/g, " ");
-  } 
+  }
   return 'no displayname';
 }
 
@@ -49,6 +49,14 @@ export function checkSignUpDataValid(username: string, password: string, repeatP
     && (password === repeatPassword);
 }
 
+export function incrementBookmarkCount(p: Post) {
+  let updatedPost = { ...p };
+  let currentValue = parseInt(updatedPost.bookmark_count) || 0;
+  const newFavCount = currentValue + 1;
+  updatedPost.bookmark_count = newFavCount.toString();
+  return updatedPost;
+}
+
 /**
  * Returns cookie value
  * Retrieves the value of a cookie by cookie's key.
@@ -56,8 +64,8 @@ export function checkSignUpDataValid(username: string, password: string, repeatP
  */
 export function getCookie(name: string) {
   let cookie: any = {};
-  document.cookie.split(';').forEach(function(el) {
-    let [k,v] = el.split('=');
+  document.cookie.split(';').forEach(function (el) {
+    let [k, v] = el.split('=');
     cookie[k.trim()] = v;
   })
   return cookie[name];
