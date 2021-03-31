@@ -156,7 +156,7 @@ function RegisterStatusPage() {
   useEffect(() => {
     switch (checkStatus) {
       case 'rejected':
-        setText("We are sorry, we will not be able to grant you membership at this time. Please apply again at a later date, we would love for you to be a part of the the Learning Circle community!");
+        setText("We are sorry, we will not be able to grant you membership at this time. Contact our support at support@learningcircle.com to re-attempt eligiblity!");
         break;
       case 'pending':
         setText("We would love to have you as a member of the Learning Circle, but we are going to need a bit more information first! You have been sent a follow up email with an additional questionnaire, please fill out at your earliest convenience!");

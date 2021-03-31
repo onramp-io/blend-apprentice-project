@@ -3,6 +3,7 @@ import ExpressError from "../expressError";
 import UserAuth from "../models/userAuth";
 import User from "../models/user";
 import Checkout from "../models/stripe";
+import { ACTIVE } from "../membershipStatuses";
 
 export const userAuthRouter = express.Router();
 
@@ -47,7 +48,7 @@ userAuthRouter.post("/login", async function (req: Request, res: Response, next:
     res.cookie("token", authResult.token);
 
     const now = new Date();
-    const isOverdue = user.cancel_at ? now >= user.cancel_at : false;
+    const isOverdue = user.membership_status === ACTIVE && user.cancel_at ? now >= user.cancel_at : false;
 
     if(isOverdue) {
       try{
