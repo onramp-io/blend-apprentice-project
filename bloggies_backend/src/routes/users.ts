@@ -79,15 +79,15 @@ usersRouter.get("/activate-subscription", ensureLoggedIn, async (req: Request, r
   try {
     const user = await User.getUser(user_id);
     const sub = await stripe.subscriptions.retrieve(user.subscription_id);
-    if ( sub.status === ACTIVE && user.membership_status !== ACTIVE ) {
+    if (sub.status === ACTIVE && user.membership_status !== ACTIVE) {
       let cancelAt = sub.current_period_start + timePeriod;
       await User.startSubscription(sub.id, sub.current_period_start, sub.current_period_end, cancelAt);
       await Email.sendConfirmation(email, ACTIVE);
 
-      return res.status(204).json({ message: "Membership is now active."});
+      return res.status(200).json({ message: "Membership is now active." });
     }
 
-    return res.json({ message: `Membership could not activate: subscription status is ${sub.status}.` });
+    return res.status(400).json({ message: `Membership could not activate: subscription status is ${sub.status}.` });
   } catch (err) {
     return next(err);
   }
@@ -104,7 +104,7 @@ usersRouter.get("/all-memberships", async (req: Request, res: Response, next: Ne
       console.log(resp);
     })
     res.send(expiring);
-  } catch(err) {
+  } catch (err) {
     return next(err);
   }
 });

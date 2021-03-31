@@ -105,17 +105,20 @@ function RegisterStatusPage() {
 
   const handleActivateSubClick = async () => {
     try {
+      dispatch(deleteServerErr());
       const res = await fetch(`${BASE_URL}/users/activate-subscription`, {
         credentials: "include"
       });
       const resData = await res.json();
-      if (res.status === 204) {
-        dispatch(deleteServerErr());
+      console.log("before res.status", res.status);
+
+      if (res.status === 200) {
+        console.log("res.status", res.status);
         dispatch(gotMembershipStatus(ACTIVE));
       } else if (res.status === 500) {
         dispatch(gotServerErr("Subscription does not exist, please proceed to payment or contact support@bloggies.com."));
       } else {
-        dispatch(gotServerErr(resData.error.message));
+        dispatch(gotServerErr(resData.message));
       }
     } catch (err) {
       console.log(`An error occurred when manually activating subscription: ${err}`);
@@ -164,6 +167,9 @@ function RegisterStatusPage() {
       case 'inactive':
         setText("We are sorry to see you go! Since you have filled out this application prior, no need to refill it out should you again choose to be a premium user! We would love to have you back as a part of the Learning Circle, click below to re-activate your membership!");
         break;
+      case 'active':
+        setText("Welcome to the Learning Circle! Your membership is now active. 🎉");
+        break;
       default:
         break;
     }
@@ -176,7 +182,7 @@ function RegisterStatusPage() {
       </RegisterStatusItem>
       <RegisterStatusItem>
         {/* check to see status of member to see what button to render */}
-        {checkStatus === 'rejected' || checkStatus === 'pending' || checkStatus === 'none' ? homeButton : paymentButton}
+        {checkStatus === 'rejected' || checkStatus === 'pending' || checkStatus === 'none' || checkStatus === 'active' ? homeButton : paymentButton}
         {(checkStatus === 'accepted' || checkStatus === 'inactive') && manualSubActivateInfo}
       </RegisterStatusItem>
     </RegisterStatusContainer>
