@@ -1,4 +1,5 @@
 import { Post, CustomReduxState } from "../custom";
+import { incrementBookmarkCount } from "../helpers";
 import * as t from "./actionTypes";
 
 const INITIAL_STATE: CustomReduxState = { user: {}, posts: [], favorites: [], searchResults: { posts: [], users: [] }, serverErr: "" };
@@ -10,10 +11,10 @@ interface Action {
 
 function rootReducer(state = INITIAL_STATE, action: Action) {
   switch (action.type) {
-    case t.UPDATE_CUSTOMER_ID: 
-      return {...state, user:{ ...state.user, customer_id: action.payload.customer.id}};
+    case t.UPDATE_CUSTOMER_ID:
+      return { ...state, user: { ...state.user, customer_id: action.payload.customer.id } };
     case t.UPDATE_SUBSCRIPTION_ID:
-      return {...state, user: { ...state.user, subscription_id: action.payload.subscription_id}};
+      return { ...state, user: { ...state.user, subscription_id: action.payload.subscription_id } };
     case t.UPDATE_MEMBERSHIP_STATUS:
       return { ...state, user: { ...state.user, membership_status: action.payload.membership_status } };
     case t.LOAD_USER:
@@ -27,16 +28,19 @@ function rootReducer(state = INITIAL_STATE, action: Action) {
     case t.LOAD_SEARCH_RESULTS:
       return { ...state, searchResults: action.payload }
     case t.ADD_FAVORITE:
+      let updatedPostBookmark = action.payload.post;
       const updateAddFavPosts = state.posts.map((p: Post) => {
-        // Increment the favorite count of the post
+        // Increment the favorite count of the post in posts state
         if (p.id === action.payload.post.id) {
-          let currentValue = parseInt(p.bookmark_count) || 0;
-          const newFavCount = currentValue + 1;
-          p.bookmark_count = newFavCount.toString();
+          const updatedP = incrementBookmarkCount(p);
+          return updatedP;
         }
         return p;
       });
-      return { ...state, posts: updateAddFavPosts, favorites: [...state.favorites, action.payload.post] };
+      if (state.posts.length !== 0) {
+        updatedPostBookmark = incrementBookmarkCount(action.payload.post);
+      }
+      return { ...state, posts: updateAddFavPosts, favorites: [...state.favorites, updatedPostBookmark] };
     case t.DELETE_FAVORITE:
       // delete the post from the state's favorites
       let filteredFavorites = state.favorites.filter((f: Post) => {
@@ -75,7 +79,7 @@ function rootReducer(state = INITIAL_STATE, action: Action) {
       const newUserInfo = {
         ...copyOfUpdatedUser, ...updatedUser
       }
-      return {...state, user: newUserInfo};
+      return { ...state, user: newUserInfo };
     case t.LOGOUT:
       // reset all states related to a current user.
       return { ...state, user: {}, favorites: [] };

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Alert } from "react-bootstrap";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import BlogList from "../../BlogList";
 import { BASE_URL } from "../../config";
 import { CustomReduxState, Post } from "../../custom";
 import FavoritesList from "../../FavoritesList";
 import { removeStrDashes } from "../../helpers";
+import { clearPosts } from "../../redux/actionCreators";
 
 /**
  * `UserProfile` renders the page for displaying a user's `FavoritesList` and 
@@ -20,6 +21,8 @@ function UserProfile() {
   const [userFavs, setUserFavs] = useState<Array<Post>>([]);
   const [userPosts, setUserPosts] = useState<Array<Post>>([]);
   const [serverErr, setServerErr] = useState("");
+
+  const dispatch = useDispatch();
 
   useEffect(function checkProfileOwner() {
     // retrieve user favorites by a GET request with user id from params.
@@ -43,8 +46,12 @@ function UserProfile() {
         setServerErr("This user does not exist.");
       }
     }
+    
+    /* Clear redux state posts because of a bug
+    * where the `bookmark_count` will not increment, if there are posts in the redux state.*/
+    dispatch(clearPosts());
 
-    // if profile belongs to the current user, use redux data.
+    // if profile belongs to the current user, use redux data for bookmarks.
     if (parseInt(userId) === currUser.id) {
       setIsCurrUserProfile(true);
       getUserPosts();
