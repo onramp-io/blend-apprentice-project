@@ -1,8 +1,10 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, {useEffect, useState} from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { CustomReduxState } from "../../custom";
 import styled from "styled-components";
 import { useHistory } from "react-router";
+import { createCustomer } from "../../redux/stripeAction";
+
 
 // styled components, later could possibly extact to once cetralized style sheet
 const RegisterStatusContainer = styled.div`
@@ -71,42 +73,54 @@ const PaymentButton = styled(Button)`
 
 function RegisterStatusPage() {
   const history = useHistory();
+  const dispatch = useDispatch()
+  const [text, setText] = useState('')
+
   // pulls membership status from redux store
   const checkStatus = useSelector(
     (st: CustomReduxState) => st.user.membership_status
   );
 
-  let text: string | null = null;
   // home buttone redirects user to newfeed page
   let homeButton = (
     <NewsFeedButton onClick={() => history.push("/")}>
       {"Take me back to the newsfeed!"}
     </NewsFeedButton>
   );
+
+
+
   // payment button directs user to stripe success form
   let paymentButton = (
-    <PaymentButton
-      onClick={() => history.push("/payment/form")}
+    <PaymentButton 
+    onClick={() => { 
+      history.push("/payment/form") 
+      dispatch(createCustomer())
+  }}
     >{`I'm Ready, Sign Me Up!`}</PaymentButton>
   );
 
-  // if block below determines what to render as the message as a result of the user status
-  if (checkStatus === "none") {
-    text = "";
-  } else if (checkStatus === "rejected") {
-    text =
-      "We are sorry, we will not be able to grant you membership at this time. Please apply again at a later date, we would love for you to be a part of the the Learning Circle community!";
-  } else if (checkStatus === "pending") {
-    text =
-      "We would love to have you as a member of the Learning Circle, but we are going to need a bit more information first! You have been sent a follow up email with an additional questionnaire, please fill out at your earliest convenience!";
-  } else if (checkStatus === "accepted") {
-    text =
-      "Congratulations! You have been approved to become a premium member of the Learning Circle! Click below to register for your subscription, we are excited to welcome you into the community!";
-  } else if (checkStatus === "inactive") {
-    text =
-      "We are sorry to see you go! Since you have filled out this application prior, no need to refill it out should you again choose to be a premium user! We would love to have you back as a part of the Learning Circle, click below to re-activate your membership!";
-  }
+  
+  useEffect(() => {
+    switch (checkStatus) {
+      case 'rejected':
+        setText("We are sorry, we will not be able to grant you membership at this time. Please apply again at a later date, we would love for you to be a part of the the Learning Circle community!");
+        break;
+      case 'pending':
+        setText("We would love to have you as a member of the Learning Circle, but we are going to need a bit more information first! You have been sent a follow up email with an additional questionnaire, please fill out at your earliest convenience!");
+        break;
+      case 'accepted':
+        setText("Congratulations! You have been approved to become a premium member of the Learning Circle! Click below to register for your subscription, we are excited to welcome you into the community!");
+        break;
+      case 'inactive':
+        setText("We are sorry to see you go! Since you have filled out this application prior, no need to refill it out should you again choose to be a premium user! We would love to have you back as a part of the Learning Circle, click below to re-activate your membership!");
+        break;
+      default:
+        break;
+    }
+  }, [checkStatus])
 
+  
   return (
     <RegisterStatusContainer className="RegisterStatusPage">
       <RegisterStatusItem>
