@@ -1,20 +1,3 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`UserCard should match snapshot 1`] = `
-<Card
-  body={false}
-  className="UserCard text-left"
->
-  <CardBody>
-    <CardText
-      className="BlogCard-body"
-    >
-      <NavLink
-        to="/users/1/test-username"
-      >
-        Test Username
-      </NavLink>
-    </CardText>
-  </CardBody>
-</Card>
-`;
+exports[`UserCard should match snapshot 1`] = `ShallowWrapper {}`;

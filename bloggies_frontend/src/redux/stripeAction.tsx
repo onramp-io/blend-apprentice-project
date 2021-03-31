@@ -16,9 +16,9 @@ export const createCustomer = () => {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-        } 
+        }
       })
-      const resData = await res.json(); 
+      const resData = await res.json();
       if(res.status === 201) {
         dispatch(deleteServerErr());
         dispatch(gotCustomer(resData));
@@ -27,9 +27,9 @@ export const createCustomer = () => {
       }
     }
   }
- 
+
   const gotCustomer = (customer:any) => {
-    return {type: UPDATE_CUSTOMER_ID, payload: customer}; 
+    return {type: UPDATE_CUSTOMER_ID, payload: customer};
   }
 
   export const gotSubscription = (subscription:any) => {
