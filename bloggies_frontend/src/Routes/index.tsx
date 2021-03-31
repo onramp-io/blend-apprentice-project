@@ -49,11 +49,6 @@ function Routes() {
           <PaymentCancelPage />
         </div>
       </Route>
-      <Route exact path="/payment/checkout">
-        <div className="Routes-thin-container">
-          <UserSubscriptionPayment />
-        </div>
-      </Route>
       <Route exact path="/register/membership-form">
         <div>
           <UserApplicationPage />
