@@ -52,7 +52,7 @@ const PaymentButton = styled(Button)`
   background-color: #28a745;
   border-color: #28a745;
   &:hover{
-      background-color: #218838;g
+      background-color: #218838;
       border-color: #1e7e34;
   }
   &:active {
@@ -102,7 +102,6 @@ function RegisterStatusPage() {
 
   
   useEffect(() => {
-    console.log('worrking', checkStatus)
     switch (checkStatus) {
       case 'rejected':
         setText("We are sorry, we will not be able to grant you membership at this time. Please apply again at a later date, we would love for you to be a part of the the Learning Circle community!");
