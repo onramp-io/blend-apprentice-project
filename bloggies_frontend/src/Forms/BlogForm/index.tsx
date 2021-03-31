@@ -62,7 +62,7 @@ function BlogForm({ addPost, post, closeModal }: IProp) {
           <Form.Control as="textarea" name="body" value={formData.body} onChange={handleChange} placeholder="Body" />
         </Form.Group>
         <Form.Group>
-          <Form.Check type="checkbox" label="Make it premium" onChange={handleChange} name="is_premium" />
+          <Form.Check type="checkbox" label="Make it premium" onChange={handleChange} name="is_premium" checked={formData.is_premium}/>
         </Form.Group>
         <Button type="submit">Publish post</Button>
       </Form>

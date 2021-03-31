@@ -65,7 +65,7 @@ function BlogCard({ post }: IProp) {
               {post.author_name}
             </StyledAuthorLink>
               <span className="text-muted"> {moment(post.created_at).fromNow()}</span> {post.last_updated_at !== post.created_at && post.last_updated_at && <span className="App-update"> (last updated {moment(post.last_updated_at).fromNow()})</span>}</Card.Subtitle>
-            <FavoriteButton post={post}></FavoriteButton>
+            <FavoriteButton key={post.bookmark_count} post={post}></FavoriteButton>
           </Row>
         </Container>
       </Card.Body>
