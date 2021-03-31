@@ -76,11 +76,14 @@ stripeRouter.post("/webhook", async function (req: Request, res: Response, next:
         await User.cancelSubscription(data.id, data.current_period_end);
         break;
       case 'customer.subscription.created':
-        data = event.data.object;
+        data = event.data.object; // subscription object
         if (data.status === "active") {
           let cancelAt = data.current_period_start + timePeriod;
           await User.startSubscription(data.id, data.current_period_start, data.current_period_end, cancelAt);
+          const userInfo = await User.getUserBySubscriptionId(data.id);
+          await Email.sendConfirmation(userInfo.email, ACTIVE);
         }
+        break;
       case 'payment_intent.succeeded':
         console.log(`PaymentIntent success for ${event.data.object.amount}`);
         break;
