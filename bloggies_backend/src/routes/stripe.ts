@@ -195,8 +195,7 @@ stripeRouter.delete(
       const cancelledSubscription = await Checkout.stripeSubscriptionCancel(
         req.body.subscription_id
       );
-      console.log(cancelledSubscription);
-      await User.cancelSubscription(cancelledSubscription.id, cancelledSubscription.current_period_end);
+        await User.cancelSubscription(cancelledSubscription.id, cancelledSubscription.current_period_end);
         const userInfo = await User.getUserBySubscriptionId(cancelledSubscription.id);
         await Email.sendExpiredNotification(userInfo.email);
       res.send({ cancelled_subscription: cancelledSubscription });
