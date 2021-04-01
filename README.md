@@ -62,9 +62,9 @@ To setup the **backend** run the following commands in the command line (from th
 To setup the **frontend** run the following commands in the command line (from the root directory):
 
 	$ cd bloggies_frontend
-	$ yarn add yarn.lock
-	$ npm start  		**code will be on localhost:3000**
-**To run frontend tests, run `$ npm test` in `bloggies_frontend/`**
+	$ yarn add yarn.lock OR yarn install
+	$ yarn start  		**code will be on localhost:3000**
+**To run frontend tests, run `$ yarn test` in `bloggies_frontend/`**
 
 (Stripe CLI required) To setup Stripe webhooks locally: 
 
@@ -82,14 +82,14 @@ To setup the **frontend** run the following commands in the command line (from t
 
 Learning Circle's frontend is a **Single Page Application** using React. The frontend architecture is the **Flux architecture**. The frontend utilizes a form of separation through **separation by UI component** and each component is written with their related functioning logic included within. Depending on the components, Learning Circle's **higher-order** components are more likely to contain heavier logic to pass down their child components in order to keep **lower-order** components *reusable and flexible* and be maintainable as the project grows in the future.
 
-Data in the frontend is handled by a state management library, **Redux**, through a Provider that enables application-wide access to a Store of states. Every component under the Provider have the ability to subscribe to read the Store's states and dispatch actions to alter the the states of the Store. Global state management was used in order to **reduce prop-drilling**. **Redux** was chosen as the favorable global state management over React's `useContext` hook because Redux state can be persisted with the use of `redux-persist` library and by doing so, a user can be logged in despite ending a session without needing to do additional API calls by persisting the user-related data: `user object` and `favorites array`. Another advantage of using Redux is the usage of action creators and a rootReducer, which allows the code to be more organized by creating modular action creators and a main rootReducer that deals with only changing the global state object (the store).
+Data in the frontend is handled by a state management library, **Redux**, through a Provider that enables application-wide access to a Store of states. Every component under the Provider has the ability to subscribe to read the Store's states and dispatch actions to alter the the states of the Store. Global state management was used in order to **reduce prop-drilling**. **Redux** was chosen as the favorable global state management over React's `useContext` hook because Redux state can be persisted with the use of `redux-persist` library and by doing so, a user can be logged in despite ending a session without needing to do additional API calls by persisting the user-related data: `user object` and `favorites array`. Another advantage of using Redux is the usage of action creators and a rootReducer, which allows the code to be more organized by creating modular action creators and a main rootReducer that deals with only changing the global state object (the store).
 
 >Future considerations: Separate `Routes/` into `PublicRoutes/` and `PrivateRoutes/` to add route protection.
 
 ## Backend Architecture
-Files are separated by `routes/` , that allows frontend code to request data from available endpoints, and `models/`, which allows view functions to invoke a model's class method(s) to access the PostgreSQL database (through the `pg` library).
+Files are separated by `routes/` , that allow frontend code to request data from available endpoints, and `models/`, which allow view functions to invoke a model's class method(s) to access the PostgreSQL database (through the `pg` library).
 
-> In summary, the backend architecture utilizes the **repository pattern**.
+> In summary, the backend architecture utilizes the **RESTful API pattern**.
 
  `Express` was used to create endpoints. `routes/` were separated by `resource` (RESTful) and uses proper HTTP verbs for each CRUD operation. Each file in `models/` is a Class representing a table (join tables excluded) in the Database Schema: `users`, `user_auth`, `posts`, `bookmarks`, and `comments`. These model classes have class methods to be invoked within the view functions of `routes/`. Each class method was written to perform a single query to simplify as much as possible.
 > exception is the `Checkout model` for Stripe API, which does not has its own table within our database.
@@ -103,7 +103,7 @@ When planning the database schema, a couple points were kept in mind:
 
 1. Reduce unnecessary columns
 
-- Although having such columns can make it easier to write queries for, extra columns in the long run can take up extra space and thus, increasing costs and maintenance. Unnecessary columns are data columns that can be obtained through a more complex SQL query using `JOIN`'s and `GROUP BY`'s. For example, getting the `number of bookmarks` for a post.
+- Although having such columns can make it easier to write queries, extra columns in the long run can take up extra space and thus, increasing costs and maintenance. Unnecessary columns are data columns that can be obtained through a more complex SQL query using `JOIN`'s and `GROUP BY`'s. For example, getting the `number of bookmarks` for a post.
 
 2. Data required for specific functionalities
 
@@ -111,12 +111,12 @@ When planning the database schema, a couple points were kept in mind:
 
 3. User satisfaction
 
-- When thinking of data to store, a user's perspective was used to think of what informations were too much to provide and what type of data they would like to view in the application. User registration information required was reduced to `email` , `password` and a `display_name`. The `join_date` would allow users to be able to differentiate between each other when searching for a user using the **search function**. The `display_name` is  unique for the author name for a post and the user's `email` is only used for authentication purposes and email notifications.
+- When thinking of data to store, a user's perspective was used to think of what information was too much to provide and what type of data they would like to view in the application. User registration information required was reduced to `email` , `password` and a `display_name`. The `join_date` would allow users to be able to differentiate between each other when searching for a user using the **search function**. The `display_name` is  unique for the author name for a post and the user's `email` is only used for authentication purposes and email notifications.
 
 Learning Circle's database is composed of six tables:
 
 1.  **user_auth** - The `user_auth` table keeps a user's authentication information.
-- `email` and `hashed_pwd` is required to be stored to login.
+- `email` and `hashed_pwd` are required to be stored for login.
 - The `join_date` is used to track the date the user registered.
 
 >**user_auth relationships to other tables:**
