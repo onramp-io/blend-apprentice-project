@@ -144,7 +144,7 @@ const PaymentPage = ()  => {
     </Card>
   
     <Button type="submit">
-      Pay $30
+      Pay $5
     </Button>
     </Form>
   </ContainerDiv>

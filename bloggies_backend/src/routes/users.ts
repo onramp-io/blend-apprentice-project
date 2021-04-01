@@ -47,7 +47,6 @@ usersRouter.patch("/status-update", ensureLoggedIn, async (req: Request, res: Re
   let sub: Stripe.Subscription;
   let updatedUser;
 
-  //add some validation here?
   try {
     if (appStatus === ACTIVE) {
       const currUser = await User.getUser(user_id);
@@ -63,6 +62,7 @@ usersRouter.patch("/status-update", ensureLoggedIn, async (req: Request, res: Re
   }
 });
 
+/** GET the membership status of the current user */
 usersRouter.get("/membership-status", ensureLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
   const { user_id } = req.user;
 
