@@ -23,7 +23,7 @@ export const createCustomer = () => {
         dispatch(deleteServerErr());
         dispatch(gotCustomer(resData));
       } else {
-        dispatch(gotServerErr(resData.error.message));
+        console.log(resData.error);
       }
     }
   }
