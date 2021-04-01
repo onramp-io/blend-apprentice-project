@@ -92,16 +92,8 @@ function UserApplicationForm({ show }: IProps) {
         answer = "accepted";
       }
     } else if (checkStatus === "none") {
-      // determines membership status for user filling out primary application
-      if (
-        // rejected case
-        data.includes("nope!") ||
-        (data.includes("nothing!") && data.includes("0.5"))
-      ) {
-        answer = "rejected";
-      }
       // pending case
-      else if (data.includes("nothing!") || data.includes("0.5")) {
+      if (data.includes("nothing!") || data.includes("0.5") || data.includes("nope!")) {
         answer = "pending";
       } else {
         // accepted case

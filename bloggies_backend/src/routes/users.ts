@@ -6,6 +6,7 @@ import Email from "../models/email";
 import { stripe } from "./stripe";
 import { ACTIVE } from "../membershipStatuses";
 import Stripe from "stripe";
+import { timePeriod } from "../utils";
 
 export const usersRouter = express.Router();
 
@@ -73,6 +74,25 @@ usersRouter.get("/membership-status", ensureLoggedIn, async (req: Request, res: 
   }
 });
 
+usersRouter.get("/activate-subscription", ensureLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
+  const { user_id, email } = req.user;
+  try {
+    const user = await User.getUser(user_id);
+    const sub = await stripe.subscriptions.retrieve(user.subscription_id);
+    if (sub.status === ACTIVE && user.membership_status !== ACTIVE) {
+      let cancelAt = sub.current_period_start + timePeriod;
+      await User.startSubscription(sub.id, sub.current_period_start, sub.current_period_end, cancelAt);
+      await Email.sendConfirmation(email, ACTIVE);
+
+      return res.status(200).json({ message: "Membership is now active." });
+    }
+
+    return res.status(400).json({ message: `Membership could not activate: subscription status is ${sub.status}.` });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 
 //route for testing membership expiration check with Postman and sending email to results
 //this is not currently needed
@@ -84,7 +104,7 @@ usersRouter.get("/all-memberships", async (req: Request, res: Response, next: Ne
       console.log(resp);
     })
     res.send(expiring);
-  } catch(err) {
+  } catch (err) {
     return next(err);
   }
 });
